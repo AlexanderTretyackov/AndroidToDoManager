@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'ru.tretyackov.todo'
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         applicationId "ru.tretyackov.todo"
         minSdk 21
-        targetSdk 32
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
