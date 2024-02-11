@@ -1,9 +1,30 @@
 package ru.tretyackov.todo
 
-import java.util.Calendar
+import androidx.lifecycle.MutableLiveData
 
 object ToDoRepository
 {
-    var todos = listOf(ToDo("1", "Название", false),
-        ToDo("2", "Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true))
+    val todos : MutableLiveData<MutableList<ToDo>> = MutableLiveData<MutableList<ToDo>>(
+        mutableListOf(ToDo("Название", false),
+        ToDo("Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true))
+    )
+
+    fun add(toDo: ToDo) {
+        todos.value!!.add(toDo)
+        todos.value = todos.value
+    }
+
+    fun remove(toDo: ToDo) {
+        todos.value!!.remove(toDo)
+        todos.value = todos.value
+    }
+
+    fun update(oldToDo: ToDo, newToDo: ToDo) {
+        oldToDo.name = newToDo.name
+        todos.value = todos.value
+    }
+}
+
+fun ToDoRepository.find(id:String):ToDo?{
+    return ToDoRepository.todos.value?.find { toDo -> toDo.id == id }
 }
