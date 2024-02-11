@@ -12,11 +12,16 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
-class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fragment() {
+private const val TODO_ID = "TODO_ID"
+
+class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        toDoParam = initToDo(savedInstanceState)
+        val toDo = toDoParam
         val view = inflater.inflate(R.layout.fragment_to_do, container, false)
         val editText = view.findViewById<EditText>(R.id.toDoDescriptionEditText)
         val closeImageButton = view.findViewById<ImageButton>(R.id.closeImageButton)
@@ -34,7 +39,7 @@ class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fr
         }
         val deleteClickListener = OnClickListener {
             if(toDo != null) {
-                toDoList.remove(toDo)
+                ToDoRepository.remove(toDo)
             }
             parentFragmentManager.popBackStack()
         }
@@ -47,12 +52,30 @@ class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fr
 
         saveButton.setOnClickListener{
             if(toDo != null)
-                toDoList.update(toDo, ToDo(toDo.id, editText.text.toString().trim(), toDo.completed, toDo.createdAt))
+                ToDoRepository.update(toDo, ToDo(editText.text.toString().trim(), toDo.completed, toDo.id, toDo.createdAt))
             else
-                toDoList.add(ToDo("123", editText.text.toString().trim(), false))
+                ToDoRepository.add(ToDo(editText.text.toString().trim(), false))
             parentFragmentManager.popBackStack()
         }
 
         return view
+    }
+
+    private fun initToDo(savedInstanceState: Bundle?) : ToDo?
+    {
+        if(toDoParam!=null)
+            return toDoParam
+        val id = savedInstanceState?.getString(TODO_ID, null)
+        if(id != null)
+            return ToDoRepository.find(id)
+        return null
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(toDoParam!=null)
+        {
+            outState.putString(TODO_ID, toDoParam!!.id)
+        }
     }
 }

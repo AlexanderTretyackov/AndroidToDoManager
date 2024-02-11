@@ -27,15 +27,10 @@ class ToDoItemDecoration(private val leftOffset:Int = 0,
     }
 }
 
-interface ToDoList{
-    fun add(toDo: ToDo)
-    fun remove(toDo: ToDo)
-    fun update(oldToDo: ToDo, newToDo: ToDo)
-}
-
-class ToDoListFragment : Fragment(), ToDoList {
+class ToDoListFragment : Fragment() {
     private lateinit var toDoAdapter: ToDoAdapter
     private lateinit var completedTextView: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,7 +40,11 @@ class ToDoListFragment : Fragment(), ToDoList {
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { updateCompletedToDoText() })
-        toDoAdapter.todos = ToDoRepository.todos.toMutableList()
+        toDoAdapter.todos = ToDoRepository.todos.value ?: listOf()
+        ToDoRepository.todos.observe(viewLifecycleOwner){
+            toDoAdapter.todos = it ?: listOf()
+            updateToDos()
+        }
         recyclerView.adapter = toDoAdapter
         val density = requireContext().resources.displayMetrics.density
         recyclerView.addItemDecoration(ToDoItemDecoration((16 *  density).toInt(),(12 *  density).toInt(),
@@ -61,25 +60,10 @@ class ToDoListFragment : Fragment(), ToDoList {
     {
         parentFragmentManager.commit {
             add(R.id.fragment_container_view,
-                ToDoFragment(this@ToDoListFragment, toDo))
+                ToDoFragment(toDo))
             setReorderingAllowed(true)
             addToBackStack(null)
         }
-    }
-
-    override fun add(toDo: ToDo) {
-        toDoAdapter.todos.add(toDo)
-        updateToDos()
-    }
-
-    override fun remove(toDo: ToDo) {
-        toDoAdapter.todos.remove(toDo)
-        updateToDos()
-    }
-
-    override fun update(oldToDo: ToDo, newToDo: ToDo) {
-        oldToDo.name = newToDo.name
-        updateToDos()
     }
 
     private fun updateCompletedToDoText()

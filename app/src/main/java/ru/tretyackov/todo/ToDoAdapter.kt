@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ToDoAdapter(private val onClick:(ToDo)->Unit,
                   private val onCheck : (ToDo)->Unit) : RecyclerView.Adapter<ToDoViewHolder>() {
-    var todos = mutableListOf<ToDo>()
+    var todos = listOf<ToDo>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return ToDoViewHolder(layoutInflater.inflate(R.layout.to_do_list_item, parent, false),
