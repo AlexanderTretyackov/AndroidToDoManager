@@ -47,9 +47,9 @@ class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fr
 
         saveButton.setOnClickListener{
             if(toDo != null)
-                toDoList.update(toDo, ToDo(toDo.id, editText.text.toString(), toDo.completed, toDo.createdAt))
+                toDoList.update(toDo, ToDo(toDo.id, editText.text.toString().trim(), toDo.completed, toDo.createdAt))
             else
-                toDoList.add(ToDo("123", editText.text.toString(), false))
+                toDoList.add(ToDo("123", editText.text.toString().trim(), false))
             parentFragmentManager.popBackStack()
         }
 
