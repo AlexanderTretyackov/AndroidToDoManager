@@ -1,17 +1,16 @@
 package ru.tretyackov.todo
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 
 class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fragment() {
     override fun onCreateView(
@@ -23,6 +22,8 @@ class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fr
         val closeImageButton = view.findViewById<ImageButton>(R.id.closeImageButton)
         val saveButton = view.findViewById<TextView>(R.id.saveButton)
 
+        editText.setText(toDo?.name ?: "")
+
         val deleteTextView = view.findViewById<TextView>(R.id.deleteTextView)
         val deleteImageView = view.findViewById<ImageView>(R.id.deleteImageView)
         if(toDo != null)
@@ -31,7 +32,6 @@ class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fr
             deleteTextView.setTextColor(color)
             deleteImageView.setColorFilter(color)
         }
-
         val deleteClickListener = OnClickListener {
             if(toDo != null) {
                 toDoList.remove(toDo)
@@ -41,10 +41,10 @@ class ToDoFragment(private val toDoList: ToDoList, private val toDo: ToDo?) : Fr
         deleteTextView.setOnClickListener(deleteClickListener)
         deleteImageView.setOnClickListener(deleteClickListener)
 
-        editText.setText(toDo?.name ?: "")
         closeImageButton.setOnClickListener{
             parentFragmentManager.popBackStack()
         }
+
         saveButton.setOnClickListener{
             if(toDo != null)
                 toDoList.update(toDo, ToDo(toDo.id, editText.text.toString(), toDo.completed, toDo.createdAt))
