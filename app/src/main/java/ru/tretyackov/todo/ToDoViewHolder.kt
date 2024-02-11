@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 
 fun TextView.updateCompleteStyle(isCompleted: Boolean)
@@ -15,7 +16,7 @@ fun TextView.updateCompleteStyle(isCompleted: Boolean)
         (paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv())
 }
 
-class ToDoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+class ToDoViewHolder(itemView: View, private val onClick : (ToDo)->Unit) : RecyclerView.ViewHolder(itemView)
 {
     private val textView = itemView.findViewById<TextView>(R.id.toDoNameTextView)
     private val checkBox = itemView.findViewById<CheckBox>(R.id.checkBoxCompleted)
@@ -26,6 +27,9 @@ class ToDoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         checkBox.setOnClickListener{
             todo.completed = !todo.completed
             textView.updateCompleteStyle(todo.completed)
+        }
+        itemView.setOnClickListener {
+            onClick(todo)
         }
     }
 }

@@ -3,4 +3,11 @@
     <string name="my_todos">Мои дела</string>
     <string name="show">Показать</string>
     <string name="create_todo">Создать задачу</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="to_do_placeholder_text">Что надо сделать…</string>
+    <string name="save">СОХРАНИТЬ</string>
+    <string name="priority">Важность</string>
+    <string name="deadline">Сделать до</string>
+    <string name="delete">Удалить</string>
 </resources>

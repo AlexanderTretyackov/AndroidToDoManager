@@ -4,11 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class ToDoAdapter : RecyclerView.Adapter<ToDoViewHolder>() {
-    var todos = listOf<ToDo>()
+class ToDoAdapter(private val onClick:(ToDo)->Unit) : RecyclerView.Adapter<ToDoViewHolder>() {
+    var todos = mutableListOf<ToDo>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        return ToDoViewHolder(layoutInflater.inflate(R.layout.to_do_list_item, parent, false))
+        return ToDoViewHolder(layoutInflater.inflate(R.layout.to_do_list_item, parent, false), onClick)
     }
 
     override fun getItemCount(): Int = todos.size
