@@ -28,6 +28,14 @@
         app:layout_constraintStart_toStartOf="@+id/toDoDescriptionEditText"
         app:layout_constraintTop_toBottomOf="@+id/toDoDescriptionEditText" />
 
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/priorities"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
     <View
         android:id="@+id/view3"
         android:layout_width="0dp"
@@ -37,19 +45,17 @@
         android:background="#C6C5C2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/spinner" />
 
     <TextView
         android:id="@+id/textView3"
-        android:textColor="@color/black"
-        android:textSize="16sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="26dp"
-        android:layout_marginEnd="26dp"
         android:text="@string/deadline"
+        android:textColor="@color/black"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/view3" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:layout_width="wrap_content"

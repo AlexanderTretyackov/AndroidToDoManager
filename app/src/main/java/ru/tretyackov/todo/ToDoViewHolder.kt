@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.View
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
@@ -21,10 +22,17 @@ class ToDoViewHolder(itemView: View, private val onClick : (ToDo)->Unit,
 {
     private val textView = itemView.findViewById<TextView>(R.id.toDoNameTextView)
     private val checkBox = itemView.findViewById<CheckBox>(R.id.checkBoxCompleted)
+    private val priorityImageView = itemView.findViewById<ImageView>(R.id.priorityImageView)
     fun onBind(todo:ToDo){
         textView.text = todo.name
         checkBox.isChecked = todo.completed
         textView.updateCompleteStyle(todo.completed)
+        priorityImageView.visibility = View.VISIBLE
+        when(todo.priority){
+            ToDoPriority.No ->  priorityImageView.visibility = View.GONE
+            ToDoPriority.Low ->  priorityImageView.setImageResource(R.drawable.low)
+            ToDoPriority.High ->  priorityImageView.setImageResource(R.drawable.high)
+        }
         checkBox.setOnClickListener{
             todo.completed = !todo.completed
             textView.updateCompleteStyle(todo.completed)

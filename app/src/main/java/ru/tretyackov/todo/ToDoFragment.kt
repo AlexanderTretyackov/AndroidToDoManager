@@ -5,16 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 private const val TODO_ID = "TODO_ID"
 
-class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment() {
+class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,16 +52,26 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
+        val spinner = view.findViewById<Spinner>(R.id.spinner)
+        spinner.onItemSelectedListener = this
+
         saveButton.setOnClickListener{
             if(toDo != null)
-                ToDoRepository.update(toDo, ToDo(editText.text.toString().trim(), toDo.completed, toDo.id, toDo.createdAt))
+                ToDoRepository.update(toDo, ToDo(editText.text.toString().trim(),
+                    toDo.completed, toDo.id, toDo.createdAt,
+                    priority = ToDoPriority.values()[spinner.selectedItemPosition]))
             else
-                ToDoRepository.add(ToDo(editText.text.toString().trim(), false))
+                ToDoRepository.add(ToDo(editText.text.toString().trim(), false,
+                    priority = ToDoPriority.values()[spinner.selectedItemPosition]))
             parentFragmentManager.popBackStack()
         }
 
         return view
     }
+
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, pos: Int, id: Long) {}
+
+    override fun onNothingSelected(parent: AdapterView<*>) { }
 
     private fun initToDo(savedInstanceState: Bundle?) : ToDo?
     {

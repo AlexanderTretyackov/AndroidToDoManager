@@ -21,6 +21,7 @@ object ToDoRepository
 
     fun update(oldToDo: ToDo, newToDo: ToDo) {
         oldToDo.name = newToDo.name
+        oldToDo.priority = newToDo.priority
         todos.value = todos.value
     }
 }
