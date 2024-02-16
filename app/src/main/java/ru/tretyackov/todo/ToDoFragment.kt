@@ -61,6 +61,10 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
         }
 
         val spinner = view.findViewById<Spinner>(R.id.spinner)
+        if(savedInstanceState == null && toDo != null)
+        {
+            spinner.setSelection(toDo.priority.ordinal,false)
+        }
         spinner.onItemSelectedListener = this
 
         val datePickerDialog = buildDatePickerDialog{ _: DatePicker, y: Int, m: Int, d: Int ->
