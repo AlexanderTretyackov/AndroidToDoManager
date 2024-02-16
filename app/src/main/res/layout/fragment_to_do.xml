@@ -43,6 +43,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:background="#C6C5C2"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinner" />
@@ -54,14 +55,27 @@
         android:text="@string/deadline"
         android:textColor="@color/black"
         android:textSize="16sp"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
+    <TextView
+        android:id="@+id/deadlineTextView"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#007AFF"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        tools:text="2 июня 2021" />
+
     <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchCompat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView3"
+        app:layout_constraintBottom_toBottomOf="@+id/deadlineTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView3" />
 
@@ -69,11 +83,11 @@
         android:id="@+id/view2"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="26dp"
         android:background="#C6C5C2"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/deadlineTextView" />
 
     <TextView
         android:id="@+id/saveButton"

@@ -54,4 +54,14 @@
         android:layout_height="wrap_content"
         app:barrierDirection="right"
         app:constraint_referenced_ids="barrierCheckbox,barrierImage"/>
+
+    <TextView
+        android:id="@+id/itemDeadlineTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="15 февраля 2024"
+        android:textSize="16sp"
+        android:textColor="#B3B3B3"
+        app:layout_constraintStart_toStartOf="@+id/toDoNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/toDoNameTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
