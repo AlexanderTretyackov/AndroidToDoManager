@@ -87,6 +87,7 @@ class ToDoListFragment : Fragment() {
     private fun openToDo(toDo: ToDo?)
     {
         parentFragmentManager.commit {
+            setCustomAnimations(R.anim.slide_in,0,0,R.anim.slide_out)
             add(R.id.fragment_container_view,
                 ToDoFragment(toDo))
             setReorderingAllowed(true)
