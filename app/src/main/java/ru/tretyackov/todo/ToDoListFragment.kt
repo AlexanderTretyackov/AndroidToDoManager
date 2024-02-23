@@ -86,6 +86,10 @@ class ToDoListFragment : Fragment() {
 
     private fun openToDo(toDo: ToDo?)
     {
+        if(parentFragmentManager.fragments.any { fragment -> fragment is ToDoFragment  })
+        {
+            return
+        }
         parentFragmentManager.commit {
             setCustomAnimations(R.anim.slide_in,0,0,R.anim.slide_out)
             add(R.id.fragment_container_view,
