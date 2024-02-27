@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import ru.tretyackov.todo.databinding.FragmentToDoBinding
 import java.util.Calendar
 import java.util.Date
 
@@ -29,17 +30,19 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         toDoParam = initToDo(savedInstanceState)
         val toDo = toDoParam
-        val view = inflater.inflate(R.layout.fragment_to_do, container, false)
-        val editText = view.findViewById<EditText>(R.id.toDoDescriptionEditText)
-        val closeImageButton = view.findViewById<ImageButton>(R.id.closeImageButton)
-        val saveButton = view.findViewById<TextView>(R.id.saveButton)
-        val deadlineTextView = view.findViewById<TextView>(R.id.deadlineTextView)
-        val switchCompat = view.findViewById<SwitchCompat>(R.id.switchCompat)
-        val deleteTextView = view.findViewById<TextView>(R.id.deleteTextView)
-        val deleteImageView = view.findViewById<ImageView>(R.id.deleteImageView)
+
+        val binding = FragmentToDoBinding.inflate(layoutInflater, container, false)
+
+        val editText = binding.toDoDescriptionEditText
+        val closeImageButton = binding.closeImageButton
+        val saveButton = binding.saveButton
+        val deadlineTextView = binding.deadlineTextView
+        val switchCompat = binding.switchCompat
+        val deleteTextView = binding.deleteTextView
+        val deleteImageView = binding.deleteImageView
 
         closeImageButton.setOnClickListener{
             parentFragmentManager.popBackStack()
@@ -60,7 +63,7 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
             deleteImageView.setOnClickListener(deleteClickListener)
         }
 
-        val spinner = view.findViewById<Spinner>(R.id.spinner)
+        val spinner = binding.spinner
         if(savedInstanceState == null && toDo != null)
         {
             spinner.setSelection(toDo.priority.ordinal,false)
@@ -105,7 +108,7 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
             parentFragmentManager.popBackStack()
         }
 
-        return view
+        return binding.root
     }
 
     private fun dateFromYearMonthDay(year:Int,month:Int,day:Int): Date
