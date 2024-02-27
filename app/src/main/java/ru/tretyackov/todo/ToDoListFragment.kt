@@ -2,16 +2,23 @@ package ru.tretyackov.todo
 
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
+import kotlin.concurrent.thread
 
 class ToDoItemDecoration(private val leftOffset:Int = 0,
                          private val topOffset:Int = 0,
@@ -35,6 +42,8 @@ class ToDoListFragment : Fragment() {
     private lateinit var showImageButton: ImageButton
     private lateinit var hideImageButton: ImageButton
 
+    private lateinit var progressBar: ProgressBar
+
     private var showOnlyUncompleted: Boolean = true
 
     override fun onCreateView(
@@ -43,6 +52,9 @@ class ToDoListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_to_do_list, container, false)
         completedTextView = view.findViewById(R.id.textViewCompleted)
+
+        progressBar = view.findViewById(R.id.progressBar)
+        progressBar.visibility = View.GONE
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { filterToDos() })
@@ -58,7 +70,6 @@ class ToDoListFragment : Fragment() {
         val addToDoButton = view.findViewById<FloatingActionButton>(R.id.createToDoButton)
         addToDoButton.setOnClickListener{ openToDo(null) }
         updateCompletedToDoText()
-
         showImageButton = view.findViewById(R.id.showImageButton)
         hideImageButton = view.findViewById(R.id.hideImageButton)
         showImageButton.setOnClickListener {

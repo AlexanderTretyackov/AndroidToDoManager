@@ -25,7 +25,6 @@
 
         <TextView
             android:id="@+id/textView2"
-            android:textColor="@color/black"
             android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:entries="@array/priorities"
+            android:popupBackground="@color/popupBackgroundColor"
             app:layout_constraintStart_toStartOf="@+id/textView2"
             app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
@@ -59,7 +59,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/deadline"
-            android:textColor="@color/black"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="@+id/textView2"
@@ -119,7 +118,6 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/rounded_ui"
-            android:backgroundTint="@color/white"
             android:gravity="start"
             android:hint="@string/to_do_placeholder_text"
             android:padding="16dp"

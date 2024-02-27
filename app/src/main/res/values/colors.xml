@@ -8,5 +8,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="backgroundColor">#F7F6F2</color>
+    <color name="accentBackgroundColor">#FFFFFF</color>
     <color name="deleteColor">#FF3B30</color>
+    <color name="defaultTextColor">#000000</color>
+
+    <color name="checkbox_checked">#34C759</color>
+    <color name="checkbox_unchecked">#33000000</color>
+
+    <color name="popupBackgroundColor">#FFFFFF</color>
 </resources>
