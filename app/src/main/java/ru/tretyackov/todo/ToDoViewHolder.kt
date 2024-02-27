@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import ru.tretyackov.todo.databinding.ToDoListItemBinding
 
 fun TextView.updateCompleteStyle(isCompleted: Boolean)
 {
@@ -20,13 +21,13 @@ fun TextView.updateCompleteStyle(isCompleted: Boolean)
         (paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv())
 }
 
-class ToDoViewHolder(itemView: View, private val onClick : (ToDo)->Unit,
-                     private val onCheck : (ToDo)->Unit) : RecyclerView.ViewHolder(itemView)
+class ToDoViewHolder(binding: ToDoListItemBinding, private val onClick : (ToDo)->Unit,
+                     private val onCheck : (ToDo)->Unit) : RecyclerView.ViewHolder(binding.root)
 {
-    private val textView = itemView.findViewById<TextView>(R.id.toDoNameTextView)
-    private val checkBox = itemView.findViewById<CheckBox>(R.id.checkBoxCompleted)
-    private val priorityImageView = itemView.findViewById<ImageView>(R.id.priorityImageView)
-    private val itemDeadlineTextView = itemView.findViewById<TextView>(R.id.itemDeadlineTextView)
+    private val textView = binding.toDoNameTextView
+    private val checkBox = binding.checkBoxCompleted
+    private val priorityImageView = binding.priorityImageView
+    private val itemDeadlineTextView = binding.itemDeadlineTextView
     fun onBind(todo:ToDo){
         textView.text = todo.name
         checkBox.isChecked = todo.completed
