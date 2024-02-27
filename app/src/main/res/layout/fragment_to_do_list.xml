@@ -13,7 +13,6 @@
         android:layout_marginTop="50dp"
         android:text="@string/my_todos"
         android:textSize="32sp"
-        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <TextView
@@ -23,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="60dp"
         android:text="@string/my_todos"
-        android:textColor="#ADADAA"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
@@ -33,7 +31,7 @@
         android:id="@+id/recyclerView"
         android:elevation="5dp"
         android:outlineProvider="bounds"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="@color/accentBackgroundColor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -48,7 +46,6 @@
 
     <ImageButton
         android:id="@+id/showImageButton"
-        android:background="@color/backgroundColor"
         android:layout_marginEnd="24dp"
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -80,4 +77,14 @@
         app:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

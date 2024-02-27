@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="backgroundColor">#161618</color>
+    <color name="accentBackgroundColor">#252528</color>
+    <color name="defaultTextColor">#FFFFFF</color>
+
+    <color name="checkbox_checked">#34C759</color>
+    <color name="checkbox_unchecked">#33FFFFFF</color>
+
+    <color name="popupBackgroundColor">#3C3C3F</color>
+</resources>

@@ -2,16 +2,19 @@ package ru.tretyackov.todo
 
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 fun TextView.updateCompleteStyle(isCompleted: Boolean)
 {
-    setTextColor(Color.parseColor(if(isCompleted) "#B3B3B3" else "#000000"))
+    setTextColor(if(isCompleted) Color.parseColor("#B3B3B3") else
+        ContextCompat.getColor(context,R.color.defaultTextColor))
     paintFlags = if(isCompleted)
         (paintFlags or Paint.STRIKE_THRU_TEXT_FLAG) else
         (paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv())

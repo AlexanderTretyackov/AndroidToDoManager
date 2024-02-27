@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="customTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/defaultTextColor</item>
+    </style>
+    <style name="customEditTextStyle" parent="Widget.MaterialComponents.TextInputEditText.FilledBox">
+        <item name="android:backgroundTint">@color/accentBackgroundColor</item>
+        <item name="android:textColorHint">@color/defaultTextColor</item>
+    </style>
+</resources>
