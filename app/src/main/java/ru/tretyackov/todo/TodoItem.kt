@@ -6,10 +6,10 @@ import java.util.Date
 import java.util.UUID
 
 enum class ToDoPriority{
-    No,Low,High
+    Low,Medium,High
 }
 data class TodoItem(var name: String, var completed:Boolean, val id:String = UUID.randomUUID().toString(),
-                    val createdAt: Date = Calendar.getInstance().time, var priority: ToDoPriority = ToDoPriority.No,
+                    val createdAt: Date = Calendar.getInstance().time, var priority: ToDoPriority = ToDoPriority.Medium,
                     var deadline:Date? = null)
 
 fun Date.toFormattedString() : String{

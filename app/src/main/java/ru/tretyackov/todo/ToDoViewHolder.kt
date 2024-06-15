@@ -30,9 +30,9 @@ class ToDoViewHolder(binding: ToDoListItemBinding, private val onClick : (TodoIt
         textView.updateCompleteStyle(todo.completed)
         priorityImageView.visibility = View.VISIBLE
         when(todo.priority){
-            ToDoPriority.No ->  priorityImageView.visibility = View.GONE
-            ToDoPriority.Low ->  priorityImageView.setImageResource(R.drawable.low)
-            ToDoPriority.High ->  priorityImageView.setImageResource(R.drawable.high)
+            ToDoPriority.Low -> priorityImageView.setImageResource(R.drawable.low)
+            ToDoPriority.Medium -> priorityImageView.visibility = View.GONE
+            ToDoPriority.High -> priorityImageView.setImageResource(R.drawable.high)
         }
         itemDeadlineTextView.visibility = if(todo.deadline != null) View.VISIBLE else View.GONE
         itemDeadlineTextView.text = todo.deadline?.toFormattedString()
