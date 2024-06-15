@@ -90,7 +90,7 @@ class ToDoListFragment : Fragment() {
         refreshUI()
     }
 
-    private fun openToDo(toDo: ToDo?)
+    private fun openToDo(todoItem: TodoItem?)
     {
         if(parentFragmentManager.fragments.any { fragment -> fragment is ToDoFragment  })
         {
@@ -99,7 +99,7 @@ class ToDoListFragment : Fragment() {
         parentFragmentManager.commit {
             setCustomAnimations(R.anim.slide_in,0,0,R.anim.slide_out)
             add(R.id.fragment_container_view,
-                ToDoFragment(toDo))
+                ToDoFragment(todoItem))
             setReorderingAllowed(true)
             addToBackStack(null)
         }
