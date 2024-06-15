@@ -8,12 +8,6 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.DatePicker
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.TextView
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import ru.tretyackov.todo.databinding.FragmentToDoBinding
@@ -24,15 +18,15 @@ import java.util.Date
 private const val TODO_ID = "TODO_ID"
 private const val DEADLINE_DATE = "DEADLINE_DATE"
 
-class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterView.OnItemSelectedListener {
+class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), AdapterView.OnItemSelectedListener {
 
     private var deadline = Calendar.getInstance().time
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        toDoParam = initToDo(savedInstanceState)
-        val toDo = toDoParam
+        todoItemParam = initToDo(savedInstanceState)
+        val toDo = todoItemParam
 
         val binding = FragmentToDoBinding.inflate(layoutInflater, container, false)
 
@@ -97,12 +91,12 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
 
         saveButton.setOnClickListener{
             if(toDo != null)
-                ToDoRepository.update(toDo, ToDo(editText.text.toString().trim(),
+                ToDoRepository.update(toDo, TodoItem(editText.text.toString().trim(),
                     toDo.completed, toDo.id, toDo.createdAt,
                     priority = ToDoPriority.values()[spinner.selectedItemPosition],
                     deadline = if(switchCompat.isChecked) this.deadline else null))
             else
-                ToDoRepository.add(ToDo(editText.text.toString().trim(), false,
+                ToDoRepository.add(TodoItem(editText.text.toString().trim(), false,
                     priority = ToDoPriority.values()[spinner.selectedItemPosition],
                     deadline = if(switchCompat.isChecked) this.deadline else null))
             parentFragmentManager.popBackStack()
@@ -133,10 +127,10 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
 
     override fun onNothingSelected(parent: AdapterView<*>) { }
 
-    private fun initToDo(savedInstanceState: Bundle?) : ToDo?
+    private fun initToDo(savedInstanceState: Bundle?) : TodoItem?
     {
-        if(toDoParam!=null)
-            return toDoParam
+        if(todoItemParam!=null)
+            return todoItemParam
         val id = savedInstanceState?.getString(TODO_ID, null)
         if(id != null)
             return ToDoRepository.find(id)
@@ -145,9 +139,9 @@ class ToDoFragment(private var toDoParam: ToDo? = null) : Fragment(), AdapterVie
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if(toDoParam!=null)
+        if(todoItemParam!=null)
         {
-            outState.putString(TODO_ID, toDoParam!!.id)
+            outState.putString(TODO_ID, todoItemParam!!.id)
             outState.putSerializable(DEADLINE_DATE, deadline)
         }
     }

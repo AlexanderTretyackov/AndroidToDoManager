@@ -4,53 +4,53 @@ import androidx.lifecycle.MutableLiveData
 
 object ToDoRepository
 {
-    val todos : MutableLiveData<MutableList<ToDo>> = MutableLiveData<MutableList<ToDo>>(
-        mutableListOf(ToDo("Название", false),
-            ToDo("0", false),
-            ToDo("1", false),
-            ToDo("2", false),
-            ToDo("3", false),
-            ToDo("4", false),
-            ToDo("5", false),
-            ToDo("6", false),
-            ToDo("7", false),
-            ToDo("8", false),
-            ToDo("9", false),
-            ToDo("10", false),
-            ToDo("11", false),
-            ToDo("0", false),
-            ToDo("1", false),
-            ToDo("2", false),
-            ToDo("3", false),
-            ToDo("4", false),
-            ToDo("5", false),
-            ToDo("6", false),
-            ToDo("7", false),
-            ToDo("8", false),
-            ToDo("9", false),
-            ToDo("10", false),
-            ToDo("11", false),
-        ToDo("Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true))
+    val todos : MutableLiveData<MutableList<TodoItem>> = MutableLiveData<MutableList<TodoItem>>(
+        mutableListOf(TodoItem("Название", false),
+            TodoItem("0", false),
+            TodoItem("1", false),
+            TodoItem("2", false),
+            TodoItem("3", false),
+            TodoItem("4", false),
+            TodoItem("5", false),
+            TodoItem("6", false),
+            TodoItem("7", false),
+            TodoItem("8", false),
+            TodoItem("9", false),
+            TodoItem("10", false),
+            TodoItem("11", false),
+            TodoItem("0", false),
+            TodoItem("1", false),
+            TodoItem("2", false),
+            TodoItem("3", false),
+            TodoItem("4", false),
+            TodoItem("5", false),
+            TodoItem("6", false),
+            TodoItem("7", false),
+            TodoItem("8", false),
+            TodoItem("9", false),
+            TodoItem("10", false),
+            TodoItem("11", false),
+        TodoItem("Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true))
     )
 
-    fun add(toDo: ToDo) {
-        todos.value!!.add(toDo)
+    fun add(todoItem: TodoItem) {
+        todos.value!!.add(todoItem)
         todos.value = todos.value
     }
 
-    fun remove(toDo: ToDo) {
-        todos.value!!.remove(toDo)
+    fun remove(todoItem: TodoItem) {
+        todos.value!!.remove(todoItem)
         todos.value = todos.value
     }
 
-    fun update(oldToDo: ToDo, newToDo: ToDo) {
-        oldToDo.name = newToDo.name
-        oldToDo.priority = newToDo.priority
-        oldToDo.deadline = newToDo.deadline
+    fun update(oldTodoItem: TodoItem, newTodoItem: TodoItem) {
+        oldTodoItem.name = newTodoItem.name
+        oldTodoItem.priority = newTodoItem.priority
+        oldTodoItem.deadline = newTodoItem.deadline
         todos.value = todos.value
     }
 }
 
-fun ToDoRepository.find(id:String):ToDo?{
+fun ToDoRepository.find(id:String):TodoItem?{
     return ToDoRepository.todos.value?.find { toDo -> toDo.id == id }
 }
