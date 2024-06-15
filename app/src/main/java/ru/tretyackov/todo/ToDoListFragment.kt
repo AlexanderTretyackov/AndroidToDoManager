@@ -92,6 +92,8 @@ class ToDoListFragment : Fragment() {
 
     private fun openToDo(todoItem: TodoItem?)
     {
+        // TODO: подумать как сделать чтобы навигация
+        //  не происходила несколько раз при многкратном нажатии
         if(parentFragmentManager.fragments.any { fragment -> fragment is ToDoFragment  })
         {
             return
