@@ -53,8 +53,8 @@ class ToDoListFragment : Fragment() {
 
         val recyclerView = binding.recyclerView
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { filterToDos() })
-        toDoAdapter.todos = ToDoRepository.todos.value ?: listOf()
-        ToDoRepository.todos.observe(viewLifecycleOwner){
+        toDoAdapter.todos = TodoItemsRepository.todos.value ?: listOf()
+        TodoItemsRepository.todos.observe(viewLifecycleOwner){
             filterToDos()
         }
         recyclerView.adapter = toDoAdapter
@@ -84,7 +84,7 @@ class ToDoListFragment : Fragment() {
     }
 
     private fun filterToDos(){
-        val newList = ToDoRepository.todos.value ?: listOf()
+        val newList = TodoItemsRepository.todos.value ?: listOf()
         toDoAdapter.todos = if(showOnlyUncompleted)
             newList.filter { toDo -> !toDo.completed } else newList
         refreshUI()
@@ -109,7 +109,7 @@ class ToDoListFragment : Fragment() {
     {
         completedTextView.text =
         getString(R.string.completed,
-            (ToDoRepository.todos.value ?: listOf()).count { toDo -> toDo.completed })
+            (TodoItemsRepository.todos.value ?: listOf()).count { toDo -> toDo.completed })
     }
 
     private fun refreshUI(){

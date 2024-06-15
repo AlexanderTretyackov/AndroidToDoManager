@@ -2,7 +2,7 @@ package ru.tretyackov.todo
 
 import androidx.lifecycle.MutableLiveData
 
-object ToDoRepository
+object TodoItemsRepository
 {
     val todos : MutableLiveData<MutableList<TodoItem>> = MutableLiveData<MutableList<TodoItem>>(
         mutableListOf(TodoItem("Название", false),
@@ -51,6 +51,6 @@ object ToDoRepository
     }
 }
 
-fun ToDoRepository.find(id:String):TodoItem?{
-    return ToDoRepository.todos.value?.find { toDo -> toDo.id == id }
+fun TodoItemsRepository.find(id:String):TodoItem?{
+    return TodoItemsRepository.todos.value?.find { toDo -> toDo.id == id }
 }

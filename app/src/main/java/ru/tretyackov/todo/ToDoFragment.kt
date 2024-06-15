@@ -50,7 +50,7 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
             deleteTextView.setTextColor(color)
             deleteImageView.setColorFilter(color)
             val deleteClickListener = OnClickListener {
-                ToDoRepository.remove(toDo)
+                TodoItemsRepository.remove(toDo)
                 parentFragmentManager.popBackStack()
             }
             deleteTextView.setOnClickListener(deleteClickListener)
@@ -91,12 +91,12 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
 
         saveButton.setOnClickListener{
             if(toDo != null)
-                ToDoRepository.update(toDo, TodoItem(editText.text.toString().trim(),
+                TodoItemsRepository.update(toDo, TodoItem(editText.text.toString().trim(),
                     toDo.completed, toDo.id, toDo.createdAt,
                     priority = ToDoPriority.values()[spinner.selectedItemPosition],
                     deadline = if(switchCompat.isChecked) this.deadline else null))
             else
-                ToDoRepository.add(TodoItem(editText.text.toString().trim(), false,
+                TodoItemsRepository.add(TodoItem(editText.text.toString().trim(), false,
                     priority = ToDoPriority.values()[spinner.selectedItemPosition],
                     deadline = if(switchCompat.isChecked) this.deadline else null))
             parentFragmentManager.popBackStack()
@@ -133,7 +133,7 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
             return todoItemParam
         val id = savedInstanceState?.getString(TODO_ID, null)
         if(id != null)
-            return ToDoRepository.find(id)
+            return TodoItemsRepository.find(id)
         return null
     }
 
