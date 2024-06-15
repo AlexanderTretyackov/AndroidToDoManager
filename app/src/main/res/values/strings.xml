@@ -13,7 +13,7 @@
     <string name="completed">Выполнено — %1$d</string>
     <string name="hide">Скрыть</string>
 
-    <string name="no_priority">Нет</string>
-    <string name="low_priority">Низкий</string>
-    <string name="high_priority">Высокий</string>
+    <string name="low_priority">Низкая</string>
+    <string name="medium_priority">Обычная</string>
+    <string name="high_priority">Высокая</string>
 </resources>
