@@ -33,6 +33,8 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/barrierCheckboxAndImage"
         app:layout_constraintTop_toTopOf="@+id/checkBoxCompleted"
+        android:maxLines="3"
+        android:ellipsize="end"
         tools:text="Купить что-то, где-то, зачем-то, но зачем не очень понятно" />
 
     <androidx.constraintlayout.widget.Barrier
