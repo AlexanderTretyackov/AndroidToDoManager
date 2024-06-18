@@ -9,8 +9,8 @@ enum class ToDoPriority{
     Low,Medium,High
 }
 data class TodoItem(var name: String, var completed:Boolean, val id:String = UUID.randomUUID().toString(),
-                    val createdAt: Date = Calendar.getInstance().time, var priority: ToDoPriority = ToDoPriority.Medium,
-                    var deadline:Date? = null)
+                    val createdAt: Date = Calendar.getInstance().time, var lastUpdatedAt: Date = createdAt,
+                    var priority: ToDoPriority = ToDoPriority.Medium, var deadline:Date? = null)
 
 fun Date.toFormattedString() : String{
     val pattern = "d MMMM yyyy"
