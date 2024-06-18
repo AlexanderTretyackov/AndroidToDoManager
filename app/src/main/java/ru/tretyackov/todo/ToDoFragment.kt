@@ -65,7 +65,7 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
         spinner.onItemSelectedListener = this
 
         val datePickerDialog = buildDatePickerDialog{ _: DatePicker, y: Int, m: Int, d: Int ->
-            deadline = dateFromYearMonthDay(y,m,d)
+            deadline = DateHelper.dateFromYearMonthDay(y,m,d)
             deadlineTextView.text = deadline.toFormattedString() }
         if(toDo?.deadline != null)
         {
@@ -103,13 +103,6 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
         }
 
         return binding.root
-    }
-
-    private fun dateFromYearMonthDay(year:Int,month:Int,day:Int): Date
-    {
-        val calendar: Calendar = Calendar.getInstance()
-        calendar.set(year,month,day)
-        return calendar.time
     }
 
     private fun buildDatePickerDialog(dateListener: DatePickerDialog.OnDateSetListener):DatePickerDialog{
