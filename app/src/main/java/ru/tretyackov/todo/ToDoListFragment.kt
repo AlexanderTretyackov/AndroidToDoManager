@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,8 +35,6 @@ class ToDoListFragment : Fragment() {
     private lateinit var showImageButton: ImageButton
     private lateinit var hideImageButton: ImageButton
 
-    private lateinit var progressBar: ProgressBar
-
     private var showOnlyUncompleted: Boolean = true
 
     override fun onCreateView(
@@ -47,9 +44,6 @@ class ToDoListFragment : Fragment() {
         val binding = FragmentToDoListBinding.inflate(layoutInflater, container, false)
 
         completedTextView = binding.textViewCompleted
-
-        progressBar = binding.progressBar
-        progressBar.visibility = View.GONE
 
         val recyclerView = binding.recyclerView
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { filterToDos() })
