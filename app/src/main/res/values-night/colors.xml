@@ -3,7 +3,7 @@
     <color name="backgroundColor">#161618</color>
     <color name="accentBackgroundColor">#252528</color>
     <color name="defaultTextColor">#FFFFFF</color>
-
+    <color name="datePickerBackgroundColor">#252528</color>
     <color name="checkbox_checked">#34C759</color>
     <color name="checkbox_unchecked">#33FFFFFF</color>
 

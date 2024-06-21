@@ -8,6 +8,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="backgroundColor">#F7F6F2</color>
+    <color name="activeColor">#007AFF</color>
+    <color name="rippleActiveColor">#BEDDFF</color>
+    <color name="datePickerAccentColor">@color/activeColor</color>
+    <color name="datePickerBackgroundColor">@color/white</color>
+
+    <color name="buttonDatePickerColor">@color/activeColor</color>
     <color name="accentBackgroundColor">#FFFFFF</color>
     <color name="deleteColor">#FF3B30</color>
     <color name="defaultTextColor">#000000</color>
