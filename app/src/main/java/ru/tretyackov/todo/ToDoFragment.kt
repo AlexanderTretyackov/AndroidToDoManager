@@ -64,9 +64,6 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
         }
         spinner.onItemSelectedListener = this
 
-        val datePickerDialog = buildDatePickerDialog{ _: DatePicker, y: Int, m: Int, d: Int ->
-            deadline = DateHelper.dateFromYearMonthDay(y,m,d)
-            deadlineTextView.text = deadline.toFormattedString() }
         if(toDo?.deadline != null)
         {
             deadline = toDo.deadline!!
@@ -77,6 +74,10 @@ class ToDoFragment(private var todoItemParam: TodoItem? = null) : Fragment(), Ad
         if(savedDate != null)
             deadline = savedDate
         deadlineTextView.text = deadline.toFormattedString()
+
+        val datePickerDialog = buildDatePickerDialog{ _: DatePicker, y: Int, m: Int, d: Int ->
+            deadline = DateHelper.dateFromYearMonthDay(y,m,d)
+            deadlineTextView.text = deadline.toFormattedString() }
         deadlineTextView.setOnClickListener{
             datePickerDialog.show()
         }
