@@ -3,11 +3,28 @@ package ru.tretyackov.todo
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.Date
 
 private const val TODO_ID = "TODO_ID"
+
+interface IToDoViewModel{
+    val textState: StateFlow<String>
+    val priorityState: StateFlow<ToDoPriority>
+    val isDeadlineState: StateFlow<Boolean>
+    val deadlineDateState: StateFlow<Date>
+    val deletableState: StateFlow<Boolean>
+    val showTextErrorState: StateFlow<Boolean>
+    fun updateText(text: String)
+    fun updatePriority(priority: ToDoPriority)
+    fun updateIsDeadline(isDeadline:Boolean)
+    fun updateDeadlineDate(date: Date)
+    fun deleteToDo()
+    fun saveToDo()
+    fun goBack()
+}
 
 class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoViewModel {
     private var toDo : TodoItem? = null
@@ -50,6 +67,9 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
     private val _deadlineDateState = MutableStateFlow(DateHelper.now())
     override val deadlineDateState = _deadlineDateState.asStateFlow()
 
+    private val _showTextErrorState = MutableStateFlow(false)
+    override val showTextErrorState = _showTextErrorState.asStateFlow()
+
     override fun updateText(text: String)
     {
         _textState.update { text }
@@ -79,6 +99,11 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
     {
         val t = toDo
         val text = textState.value.trim()
+        if(text.isEmpty())
+        {
+            _showTextErrorState.update { true }
+            return
+        }
         val deadline = if(isDeadlineState.value) deadlineDateState.value else null
         if(t != null)
             TodoItemsRepository.update(t, TodoItem(text, t.completed, t.id, t.createdAt,

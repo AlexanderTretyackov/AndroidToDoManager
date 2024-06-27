@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -97,6 +98,8 @@ fun ToDoViewPreview(){
             get() = MutableStateFlow(DateHelper.now())
         override val deletableState: StateFlow<Boolean>
             get() = MutableStateFlow(true)
+        override val showTextErrorState: StateFlow<Boolean>
+            get() = MutableStateFlow(false)
         override fun updateText(text: String) { }
         override fun updatePriority(priority: ToDoPriority) { }
         override fun updateIsDeadline(isDeadline: Boolean) { }
@@ -110,21 +113,6 @@ fun ToDoViewPreview(){
         override fun setDate(date: Date) { }
     }
     ToDoView(vm = mockViewModel, datePickerDialog = mockDatePickerDialog)
-}
-
-interface IToDoViewModel{
-    val textState: StateFlow<String>
-    val priorityState: StateFlow<ToDoPriority>
-    val isDeadlineState: StateFlow<Boolean>
-    val deadlineDateState: StateFlow<Date>
-    val deletableState: StateFlow<Boolean>
-    fun updateText(text: String)
-    fun updatePriority(priority: ToDoPriority)
-    fun updateIsDeadline(isDeadline:Boolean)
-    fun updateDeadlineDate(date: Date)
-    fun deleteToDo()
-    fun saveToDo()
-    fun goBack()
 }
 
 interface IDatePickerDialog{
@@ -262,8 +250,14 @@ class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
             vm.updateTodoItem(todoItemParam)
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.goBackState.collect {
-                    if(it) parentFragmentManager.popBackStack() }
+                vm.goBackState.collect { if(it) parentFragmentManager.popBackStack() }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.showTextErrorState.collect {
+                    if(it) Toast.makeText(this@ToDoFragment.requireContext(), R.string.error_empty_text_todo, Toast.LENGTH_SHORT)
+                        .show() }
             }
         }
         val datePickerDialogImpl = object : IDatePickerDialog{
