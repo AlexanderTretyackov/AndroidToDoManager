@@ -18,4 +18,6 @@
     <string name="low_priority">Низкая</string>
     <string name="medium_priority">Обычная</string>
     <string name="high_priority">Высокая</string>
+
+    <string name="error_empty_text_todo">Нельзя создать задачу с пустым текстом</string>
 </resources>
