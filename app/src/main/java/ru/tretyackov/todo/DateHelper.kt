@@ -10,4 +10,5 @@ object DateHelper {
         calendar.set(year,month,day)
         return calendar.time
     }
+    fun now() = Calendar.getInstance().time
 }
