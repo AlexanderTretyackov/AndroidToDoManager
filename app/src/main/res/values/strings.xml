@@ -12,6 +12,8 @@
     <string name="delete">Удалить</string>
     <string name="completed">Выполнено — %1$d</string>
     <string name="hide">Скрыть</string>
+    <string name="close_content_description">Закрыть</string>
+    <string name="delete_content_description">Удалить</string>
 
     <string name="low_priority">Низкая</string>
     <string name="medium_priority">Обычная</string>
