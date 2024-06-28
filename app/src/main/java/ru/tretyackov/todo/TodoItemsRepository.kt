@@ -1,11 +1,15 @@
 package ru.tretyackov.todo
 
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
 
 object TodoItemsRepository
 {
-    val todos : MutableLiveData<MutableList<TodoItem>> = MutableLiveData<MutableList<TodoItem>>(
-        mutableListOf(TodoItem("Название", false),
+    private val context = newSingleThreadContext("CounterContext")
+    private val todos = MutableStateFlow(mutableListOf(TodoItem("Название", false),
             TodoItem("0", false),
             TodoItem("1", false, priority = ToDoPriority.Low),
             TodoItem("2", false, priority = ToDoPriority.High),
@@ -36,24 +40,36 @@ object TodoItemsRepository
         TodoItem("Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true))
     )
 
-    fun add(todoItem: TodoItem) {
-        todos.value!!.add(todoItem)
-        todos.value = todos.value
+    fun getAll() : StateFlow<List<TodoItem>> = todos
+
+    suspend fun add(todoItem: TodoItem) {
+        withContext(context){
+            val newList = todos.value.toMutableList()
+            newList.add(todoItem)
+            todos.update { newList }
+        }
     }
 
-    fun remove(todoItem: TodoItem) {
-        todos.value!!.remove(todoItem)
-        todos.value = todos.value
+    suspend fun remove(todoItem: TodoItem) {
+        withContext(context){
+            val newList = todos.value.toMutableList()
+            newList.remove(todoItem)
+            todos.update { newList }
+        }
     }
 
-    fun update(oldTodoItem: TodoItem, newTodoItem: TodoItem) {
-        oldTodoItem.name = newTodoItem.name
-        oldTodoItem.priority = newTodoItem.priority
-        oldTodoItem.deadline = newTodoItem.deadline
-        todos.value = todos.value
+    suspend fun update(oldTodoItem: TodoItem, newTodoItem: TodoItem) {
+        withContext(context){
+            val newList = todos.value.toMutableList()
+            val indexOldTodoItem = newList.indexOf(oldTodoItem)
+            newList[indexOldTodoItem] = newTodoItem
+            todos.update { newList }
+        }
     }
-}
 
-fun TodoItemsRepository.find(id:String):TodoItem?{
-    return TodoItemsRepository.todos.value?.find { toDo -> toDo.id == id }
+    suspend fun find(id:String):TodoItem?{
+        return withContext(context) {
+           return@withContext todos.value.find { toDo -> toDo.id == id }
+        }
+    }
 }
