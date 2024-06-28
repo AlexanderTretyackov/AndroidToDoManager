@@ -2,10 +2,12 @@ package ru.tretyackov.todo
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.Date
 
 private const val TODO_ID = "TODO_ID"
@@ -32,7 +34,9 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
         val id = state.get<String>(TODO_ID)
         if(id != null)
         {
-            toDo = TodoItemsRepository.find(id)
+            viewModelScope.launch {
+                toDo = TodoItemsRepository.find(id)
+            }
         }
     }
 
@@ -91,13 +95,15 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
         val t = toDo
         if(t != null)
         {
-            TodoItemsRepository.remove(t)
+            viewModelScope.launch {
+                TodoItemsRepository.remove(t)
+                goBack()
+            }
         }
-        goBack()
     }
     override fun saveToDo()
     {
-        val t = toDo
+        val oldToDo = toDo
         val text = textState.value.trim()
         if(text.isEmpty())
         {
@@ -105,15 +111,25 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
             return
         }
         val deadline = if(isDeadlineState.value) deadlineDateState.value else null
-        if(t != null)
-            TodoItemsRepository.update(t, TodoItem(text, t.completed, t.id, t.createdAt,
-                priority = priorityState.value,
-                deadline = deadline))
-        else
-            TodoItemsRepository.add(TodoItem(text, false,
-                priority = priorityState.value,
-                deadline = deadline))
-        goBack()
+        viewModelScope.launch {
+            if (oldToDo != null)
+            {
+                val newToDoItem = oldToDo.copy()
+                newToDoItem.name = text
+                newToDoItem.priority = priorityState.value
+                newToDoItem.deadline = deadline
+                TodoItemsRepository.update(oldToDo, newToDoItem)
+            }
+            else
+                TodoItemsRepository.add(
+                    TodoItem(
+                        text, false,
+                        priority = priorityState.value,
+                        deadline = deadline
+                    )
+                )
+            goBack()
+        }
     }
     override fun goBack()
     {
