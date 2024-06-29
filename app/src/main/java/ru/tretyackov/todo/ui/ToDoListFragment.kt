@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -15,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import ru.tretyackov.todo.R
 import ru.tretyackov.todo.data.TodoItem
-import ru.tretyackov.todo.data.TodoItemsRepository
 import ru.tretyackov.todo.databinding.FragmentToDoListBinding
+import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 
 class ToDoItemDecoration(private val leftOffset:Int = 0,
                          private val topOffset:Int = 0,
@@ -36,8 +37,7 @@ class ToDoItemDecoration(private val leftOffset:Int = 0,
 class ToDoListFragment : Fragment() {
     private lateinit var toDoAdapter: ToDoAdapter
     private lateinit var binding : FragmentToDoListBinding
-    private var showOnlyUncompleted: Boolean = true
-    private val stateToDoList = TodoItemsRepository.getAll()
+    private val vm: ToDoListViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,14 +45,34 @@ class ToDoListFragment : Fragment() {
     ): View {
         binding = FragmentToDoListBinding.inflate(layoutInflater, container, false)
         val recyclerView = binding.recyclerView
-        toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { refreshUI() })
-        toDoAdapter.todos = stateToDoList.value
+        toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { toDo -> vm.onSwitchToDoCompleted(toDo) })
+        toDoAdapter.todos = vm.toDoListState.value
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
             {
-                stateToDoList.collect{ refreshUI() }
+                vm.toDoListState.collect {
+                    toDoAdapter.todos = vm.toDoListState.value
+                    refreshToDoList()
+                }
             }
-         }
+        }
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
+            {
+                vm.showWithCompletedState.collect{ withCompleted ->
+                    binding.showImageButton.visibility = if(withCompleted) View.INVISIBLE else View.VISIBLE
+                    binding.hideImageButton.visibility = if(withCompleted) View.VISIBLE else View.INVISIBLE
+                }
+            }
+        }
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
+            {
+                vm.completedCountState.collect { countCompleted ->
+                    binding.textViewCompleted.text = getString(R.string.completed, countCompleted)
+                }
+            }
+        }
         recyclerView.adapter = toDoAdapter
         val density = requireContext().resources.displayMetrics.density
         recyclerView.addItemDecoration(
@@ -62,7 +82,6 @@ class ToDoListFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val addToDoButton = binding.createToDoButton
         addToDoButton.setOnClickListener{ openToDo(null) }
-        updateCompletedToDoText()
         binding.showImageButton.setOnClickListener {
             showHideCompletedToDoFilter()
         }
@@ -73,22 +92,7 @@ class ToDoListFragment : Fragment() {
     }
 
     private fun showHideCompletedToDoFilter(){
-        showOnlyUncompleted = !showOnlyUncompleted
-        binding.showImageButton.visibility = if(showOnlyUncompleted) View.VISIBLE else View.INVISIBLE
-        binding.hideImageButton.visibility = if(showOnlyUncompleted) View.INVISIBLE else View.VISIBLE
-        filterToDos()
-    }
-
-    private fun updateToDoList(){
-        toDoAdapter.todos = if(showOnlyUncompleted)
-            stateToDoList.value.filter { toDo -> !toDo.completed } else stateToDoList.value
-    }
-
-    private fun filterToDos(){
-        val newList = stateToDoList.value
-        toDoAdapter.todos = if(showOnlyUncompleted)
-            newList.filter { toDo -> !toDo.completed } else newList
-        refreshUI()
+        vm.filter(!vm.showWithCompletedState.value)
     }
 
     private fun openToDo(todoItem: TodoItem?)
@@ -110,15 +114,7 @@ class ToDoListFragment : Fragment() {
         }
     }
 
-    private fun updateCompletedToDoText()
-    {
-        binding.textViewCompleted.text =
-        getString(R.string.completed, stateToDoList.value.count { toDo -> toDo.completed })
-    }
-
-    private fun refreshUI(){
-        updateCompletedToDoText()
-        updateToDoList()
+    private fun refreshToDoList(){
         toDoAdapter.notifyDataSetChanged()
     }
 }
