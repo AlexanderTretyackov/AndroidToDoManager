@@ -1,8 +1,9 @@
-package ru.tretyackov.todo
+package ru.tretyackov.todo.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.databinding.ToDoListItemBinding
 
 class ToDoAdapter(private val onClick:(TodoItem)->Unit,

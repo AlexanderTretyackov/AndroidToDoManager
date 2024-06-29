@@ -1,4 +1,4 @@
-package ru.tretyackov.todo
+package ru.tretyackov.todo.ui
 
 import android.graphics.Color
 import android.graphics.Paint
@@ -6,12 +6,16 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import ru.tretyackov.todo.R
+import ru.tretyackov.todo.data.ToDoPriority
+import ru.tretyackov.todo.data.TodoItem
+import ru.tretyackov.todo.data.toFormattedString
 import ru.tretyackov.todo.databinding.ToDoListItemBinding
 
 fun TextView.updateCompleteStyle(isCompleted: Boolean)
 {
     setTextColor(if(isCompleted) Color.parseColor("#B3B3B3") else
-        ContextCompat.getColor(context,R.color.defaultTextColor))
+        ContextCompat.getColor(context, R.color.defaultTextColor))
     paintFlags = if(isCompleted)
         (paintFlags or Paint.STRIKE_THRU_TEXT_FLAG) else
         (paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv())
@@ -24,7 +28,7 @@ class ToDoViewHolder(binding: ToDoListItemBinding, private val onClick : (TodoIt
     private val checkBox = binding.checkBoxCompleted
     private val priorityImageView = binding.priorityImageView
     private val itemDeadlineTextView = binding.itemDeadlineTextView
-    fun onBind(todo:TodoItem){
+    fun onBind(todo: TodoItem){
         textView.text = todo.name
         checkBox.isChecked = todo.completed
         textView.updateCompleteStyle(todo.completed)

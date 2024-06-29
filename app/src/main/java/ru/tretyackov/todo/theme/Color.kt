@@ -1,4 +1,4 @@
-package ru.tretyackov.todo.ui.theme
+package ru.tretyackov.todo.theme
 
 
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -1,12 +1,5 @@
-package ru.tretyackov.todo
+package ru.tretyackov.todo.compose
 
-import android.app.DatePickerDialog
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.DatePicker
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,29 +38,27 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import ru.tretyackov.todo.ui.theme.AppTheme
-import ru.tretyackov.todo.ui.theme.backgroundColor
-import ru.tretyackov.todo.ui.theme.blueColor
-import ru.tretyackov.todo.ui.theme.dropDownItemMenuColor
-import ru.tretyackov.todo.ui.theme.redColor
-import ru.tretyackov.todo.ui.theme.textFieldBackgroundColor
-import ru.tretyackov.todo.ui.theme.textFieldTextColor
-import java.util.Calendar
+import ru.tretyackov.todo.R
+import ru.tretyackov.todo.data.ToDoPriority
+import ru.tretyackov.todo.data.toFormattedString
+import ru.tretyackov.todo.theme.AppTheme
+import ru.tretyackov.todo.theme.backgroundColor
+import ru.tretyackov.todo.theme.blueColor
+import ru.tretyackov.todo.theme.dropDownItemMenuColor
+import ru.tretyackov.todo.theme.redColor
+import ru.tretyackov.todo.theme.textFieldBackgroundColor
+import ru.tretyackov.todo.theme.textFieldTextColor
+import ru.tretyackov.todo.ui.IDatePickerDialog
+import ru.tretyackov.todo.utilities.DateHelper
+import ru.tretyackov.todo.viewmodels.IToDoViewModel
 import java.util.Date
 
 @Composable
@@ -87,7 +78,7 @@ fun SettingTextStyle(content: @Composable () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun ToDoViewPreview(){
-    val mockViewModel = object : IToDoViewModel{
+    val mockViewModel = object : IToDoViewModel {
         override val textState: StateFlow<String>
             get() = MutableStateFlow("Текст")
         override val priorityState: StateFlow<ToDoPriority>
@@ -108,20 +99,15 @@ fun ToDoViewPreview(){
         override fun saveToDo() {  }
         override fun goBack() { }
     }
-    val mockDatePickerDialog = object : IDatePickerDialog{
+    val mockDatePickerDialog = object : IDatePickerDialog {
         override fun show() { }
         override fun setDate(date: Date) { }
     }
     ToDoView(vm = mockViewModel, datePickerDialog = mockDatePickerDialog)
 }
 
-interface IDatePickerDialog{
-    fun show()
-    fun setDate(date:Date)
-}
-
 @Composable
-fun ToDoView(vm:IToDoViewModel, datePickerDialog : IDatePickerDialog) {
+fun ToDoView(vm: IToDoViewModel, datePickerDialog : IDatePickerDialog) {
     val text by vm.textState.collectAsState()
     val priority by vm.priorityState.collectAsState()
     val deletable by vm.deletableState.collectAsState()
@@ -165,7 +151,7 @@ fun ToDoView(vm:IToDoViewModel, datePickerDialog : IDatePickerDialog) {
                         focusedTextColor = textFieldTextColor,
                         unfocusedTextColor = textFieldTextColor,
                     ), shape = RoundedCornerShape(8.dp),
-                    placeholder = {Text(stringResource(id = R.string.to_do_placeholder_text), Modifier.alpha(0.3f))})
+                    placeholder = { Text(stringResource(id = R.string.to_do_placeholder_text), Modifier.alpha(0.3f)) })
                 Column(Modifier.padding(start = 16.dp, end = 16.dp)){
                     Column(Modifier.padding(top = 16.dp, bottom = 16.dp)){
                         SettingHeaderStyle{
@@ -189,11 +175,11 @@ fun ToDoView(vm:IToDoViewModel, datePickerDialog : IDatePickerDialog) {
                                 modifier = Modifier.background(dropDownItemMenuColor)
                             ) {
                                 DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.Low)
-                                    expanded = false }, text = { Text(stringResource(id = R.string.low_priority))})
+                                    expanded = false }, text = { Text(stringResource(id = R.string.low_priority)) })
                                 DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.Medium)
-                                    expanded = false }, text = {Text(stringResource(id = R.string.medium_priority))})
+                                    expanded = false }, text = { Text(stringResource(id = R.string.medium_priority)) })
                                 DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.High)
-                                    expanded = false }, text = {Text(stringResource(id = R.string.high_priority))})
+                                    expanded = false }, text = { Text(stringResource(id = R.string.high_priority)) })
                             }
                         }
                     }
@@ -231,69 +217,13 @@ fun ToDoView(vm:IToDoViewModel, datePickerDialog : IDatePickerDialog) {
                             Modifier
                                 .height(24.dp)
                                 .width(24.dp), colorFilter = ColorFilter.tint(color = if(deletable) redColor else textFieldTextColor))
-                        Text(stringResource(id = R.string.delete),
-                            modifier = Modifier.padding(start = 12.dp), color = if(deletable) redColor else textFieldTextColor)
+                        Text(
+                            stringResource(id = R.string.delete),
+                            modifier = Modifier.padding(start = 12.dp), color = if(deletable) redColor else textFieldTextColor
+                        )
                     }
                 }
             }
         }
     }
 }
-
-class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val vm: ToDoViewModel by viewModels()
-        if(todoItemParam != null)
-            vm.updateTodoItem(todoItemParam)
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.goBackState.collect { if(it) parentFragmentManager.popBackStack() }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.showTextErrorState.collect {
-                    if(it) Toast.makeText(this@ToDoFragment.requireContext(), R.string.error_empty_text_todo, Toast.LENGTH_SHORT)
-                        .show() }
-            }
-        }
-        val datePickerDialogImpl = object : IDatePickerDialog{
-            private val datePickerDialog = buildDatePickerDialog { _: DatePicker, y: Int, m: Int, d: Int ->
-                vm.updateDeadlineDate(DateHelper.dateFromYearMonthDay(y,m,d)) }
-            override fun show() {
-                datePickerDialog.show()
-            }
-            override fun setDate(date: Date) {
-                datePickerDialog.updateDate(date)
-            }
-        }
-        return ComposeView(requireContext()).apply {
-            setContent {
-                ToDoView(vm,datePickerDialogImpl)
-            }
-        }
-    }
-
-    private fun DatePickerDialog.updateDate(date : Date){
-        val calendar: Calendar = Calendar.getInstance()
-        calendar.time = date
-        val year: Int = calendar.get(Calendar.YEAR)
-        val month: Int = calendar.get(Calendar.MONTH)
-        val day: Int = calendar.get(Calendar.DAY_OF_MONTH)
-        this.updateDate(year, month, day)
-    }
-
-    private fun buildDatePickerDialog(dateListener: DatePickerDialog.OnDateSetListener):DatePickerDialog{
-        val calendar: Calendar = Calendar.getInstance()
-        val year: Int = calendar.get(Calendar.YEAR)
-        val month: Int = calendar.get(Calendar.MONTH)
-        val day: Int = calendar.get(Calendar.DAY_OF_MONTH)
-        val datePickerDialog = DatePickerDialog(requireContext(),dateListener,year,month,day)
-        datePickerDialog.datePicker.minDate = calendar.timeInMillis
-        return datePickerDialog
-    }
-}
-

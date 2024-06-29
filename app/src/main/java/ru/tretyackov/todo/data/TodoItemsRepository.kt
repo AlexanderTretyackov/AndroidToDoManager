@@ -1,15 +1,17 @@
-package ru.tretyackov.todo
+package ru.tretyackov.todo.data
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
+import ru.tretyackov.todo.utilities.DateHelper
 
 object TodoItemsRepository
 {
     private val context = newSingleThreadContext("CounterContext")
-    private val todos = MutableStateFlow(mutableListOf(TodoItem("Название", false),
+    private val todos = MutableStateFlow(mutableListOf(
+        TodoItem("Название", false),
             TodoItem("0", false),
             TodoItem("1", false, priority = ToDoPriority.Low),
             TodoItem("2", false, priority = ToDoPriority.High),
@@ -19,7 +21,8 @@ object TodoItemsRepository
             TodoItem("Длинный текст длинный текст длинный текст длинный текст длинный текст длинный текст длинный текст длинный текст",
                 false),
             TodoItem("Длинный текст длинный текст длинный текст длинный текст длинный текст длинный текст длинный текст длинный текст",
-                false, deadline = DateHelper.dateFromYearMonthDay(2024,8,29)),
+                false, deadline = DateHelper.dateFromYearMonthDay(2024,8,29)
+            ),
             TodoItem("7", false, deadline = DateHelper.dateFromYearMonthDay(2024,8,29)),
             TodoItem("8", false),
             TodoItem("9", false),
@@ -37,7 +40,8 @@ object TodoItemsRepository
             TodoItem("9", false),
             TodoItem("10", false),
             TodoItem("11", false),
-        TodoItem("Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true))
+        TodoItem("Название 2 Название 2Название 2Название 2Название 2Название 2Название 2", true)
+    )
     )
 
     fun getAll() : StateFlow<List<TodoItem>> = todos
@@ -67,7 +71,7 @@ object TodoItemsRepository
         }
     }
 
-    suspend fun find(id:String):TodoItem?{
+    suspend fun find(id:String): TodoItem?{
         return withContext(context) {
            return@withContext todos.value.find { toDo -> toDo.id == id }
         }

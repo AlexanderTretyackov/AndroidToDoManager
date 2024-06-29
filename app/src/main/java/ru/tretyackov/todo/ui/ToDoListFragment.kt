@@ -1,4 +1,4 @@
-package ru.tretyackov.todo
+package ru.tretyackov.todo.ui
 
 import android.graphics.Rect
 import android.os.Bundle
@@ -13,6 +13,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import ru.tretyackov.todo.R
+import ru.tretyackov.todo.data.TodoItem
+import ru.tretyackov.todo.data.TodoItemsRepository
 import ru.tretyackov.todo.databinding.FragmentToDoListBinding
 
 class ToDoItemDecoration(private val leftOffset:Int = 0,
@@ -52,8 +55,10 @@ class ToDoListFragment : Fragment() {
          }
         recyclerView.adapter = toDoAdapter
         val density = requireContext().resources.displayMetrics.density
-        recyclerView.addItemDecoration(ToDoItemDecoration((16 *  density).toInt(),(12 *  density).toInt(),
-            (16 *  density).toInt(),(12 *  density).toInt()))
+        recyclerView.addItemDecoration(
+            ToDoItemDecoration((16 *  density).toInt(),(12 *  density).toInt(),
+            (16 *  density).toInt(),(12 *  density).toInt())
+        )
         recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val addToDoButton = binding.createToDoButton
         addToDoButton.setOnClickListener{ openToDo(null) }
@@ -90,14 +95,16 @@ class ToDoListFragment : Fragment() {
     {
         // TODO: подумать как сделать чтобы навигация
         //  не происходила несколько раз при многкратном нажатии
-        if(parentFragmentManager.fragments.any { fragment -> fragment is ToDoFragment  })
+        if(parentFragmentManager.fragments.any { fragment -> fragment is ToDoFragment })
         {
             return
         }
         parentFragmentManager.commit {
-            setCustomAnimations(R.anim.slide_in,0,0,R.anim.slide_out)
-            add(R.id.fragment_container_view,
-                ToDoFragment(todoItem))
+            setCustomAnimations(R.anim.slide_in,0,0, R.anim.slide_out)
+            add(
+                R.id.fragment_container_view,
+                ToDoFragment(todoItem)
+            )
             setReorderingAllowed(true)
             addToBackStack(null)
         }

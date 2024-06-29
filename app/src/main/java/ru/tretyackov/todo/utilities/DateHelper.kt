@@ -1,4 +1,4 @@
-package ru.tretyackov.todo
+package ru.tretyackov.todo.utilities
 
 import java.util.Calendar
 import java.util.Date
