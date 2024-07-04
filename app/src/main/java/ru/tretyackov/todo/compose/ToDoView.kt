@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,11 +17,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -59,6 +62,7 @@ import ru.tretyackov.todo.theme.textFieldTextColor
 import ru.tretyackov.todo.ui.IDatePickerDialog
 import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.viewmodels.IToDoViewModel
+import ru.tretyackov.todo.viewmodels.ToDoUpdateError
 import java.util.Date
 
 @Composable
@@ -89,8 +93,10 @@ fun ToDoViewPreview(){
             get() = MutableStateFlow(DateHelper.now())
         override val deletableState: StateFlow<Boolean>
             get() = MutableStateFlow(true)
-        override val showTextErrorState: StateFlow<Boolean>
-            get() = MutableStateFlow(false)
+        override val isLoadingState: StateFlow<Boolean>
+            get() = MutableStateFlow(true)
+        override val errorState: StateFlow<ToDoUpdateError>
+            get() = MutableStateFlow(ToDoUpdateError.None)
         override fun updateText(text: String) { }
         override fun updatePriority(priority: ToDoPriority) { }
         override fun updateIsDeadline(isDeadline: Boolean) { }
@@ -113,114 +119,131 @@ fun ToDoView(vm: IToDoViewModel, datePickerDialog : IDatePickerDialog) {
     val deletable by vm.deletableState.collectAsState()
     val isDeadline by vm.isDeadlineState.collectAsState()
     val deadlineDate by vm.deadlineDateState.collectAsState()
+    val isLoading by vm.isLoadingState.collectAsState()
     AppTheme{
-        Scaffold (modifier = Modifier.background(backgroundColor), topBar = {
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()){
-                Image(painter = painterResource(id = R.drawable.close),
-                    contentDescription = stringResource(id = R.string.close_content_description),
-                    Modifier
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }) {
-                            vm.goBack()
-                        }
-                        .padding(16.dp)
-                        .height(24.dp)
-                        .width(24.dp))
-                TextButton(onClick = vm::saveToDo, modifier = Modifier.padding(16.dp)){
-                    Text(stringResource(id = R.string.save), color = blueColor)
-                }
-            }
-        }, containerColor = backgroundColor) { padding ->
-            Column(modifier = Modifier
-                .padding(padding)
-                .verticalScroll(rememberScrollState())){
-                TextField (value = text, onValueChange = vm::updateText,
-                    Modifier
-                        .height(IntrinsicSize.Min)
-                        .padding(start = 16.dp, end = 16.dp)
-                        .fillMaxWidth()
-                        .shadow(elevation = 3.dp), minLines = 5,
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = textFieldBackgroundColor,
-                        unfocusedContainerColor = textFieldBackgroundColor,
-                        focusedTextColor = textFieldTextColor,
-                        unfocusedTextColor = textFieldTextColor,
-                    ), shape = RoundedCornerShape(8.dp),
-                    placeholder = { Text(stringResource(id = R.string.to_do_placeholder_text), Modifier.alpha(0.3f)) })
-                Column(Modifier.padding(start = 16.dp, end = 16.dp)){
-                    Column(Modifier.padding(top = 16.dp, bottom = 16.dp)){
-                        SettingHeaderStyle{
-                            Text(stringResource(id = R.string.priority), fontSize = 16.sp)
-                        }
-                        Box {
-                            var expanded: Boolean by remember { mutableStateOf(false) }
-                            SettingTextStyle {
-                                Text(
-                                    text = stringResource(id = when (priority) {
-                                        ToDoPriority.Low -> R.string.low_priority
-                                        ToDoPriority.Medium -> R.string.medium_priority
-                                        ToDoPriority.High -> R.string.high_priority
-                                    }),
-                                    fontSize = 14.sp,
-                                    modifier = Modifier.clickable { expanded = true })
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false},
-                                modifier = Modifier.background(dropDownItemMenuColor)
-                            ) {
-                                DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.Low)
-                                    expanded = false }, text = { Text(stringResource(id = R.string.low_priority)) })
-                                DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.Medium)
-                                    expanded = false }, text = { Text(stringResource(id = R.string.medium_priority)) })
-                                DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.High)
-                                    expanded = false }, text = { Text(stringResource(id = R.string.high_priority)) })
-                            }
-                        }
+        Surface {
+            Box {
+                if(isLoading)
+                {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth().align(Alignment.Center)) {
+                        CircularProgressIndicator(color = textFieldTextColor)
+                        Spacer(modifier = Modifier.padding(16.dp))
+                        Text(text = stringResource(id = R.string.loading_text))
                     }
-                    HorizontalDivider()
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp, bottom = 16.dp)){
-                        Column {
-                            SettingHeaderStyle{
-                                Text(stringResource(id = R.string.deadline))
+                }
+                else {
+                    Scaffold (modifier = Modifier.background(backgroundColor), topBar = {
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()){
+                            Image(painter = painterResource(id = R.drawable.close),
+                                contentDescription = stringResource(id = R.string.close_content_description),
+                                Modifier
+                                    .clickable(
+                                        indication = null,
+                                        interactionSource = remember { MutableInteractionSource() }) {
+                                        vm.goBack()
+                                    }
+                                    .padding(16.dp)
+                                    .height(24.dp)
+                                    .width(24.dp))
+                            TextButton(onClick = vm::saveToDo, modifier = Modifier.padding(16.dp)){
+                                Text(stringResource(id = R.string.save), color = blueColor)
                             }
-                            if(isDeadline)
-                            {
-                                SettingTextStyle {
-                                    Text(deadlineDate.toFormattedString(), color = blueColor,
-                                        modifier = Modifier.clickable {
-                                            datePickerDialog.setDate(deadlineDate)
-                                            datePickerDialog.show() })
+                        }
+                    }, containerColor = backgroundColor) { padding ->
+
+                        Column(modifier = Modifier
+                            .padding(padding)
+                            .verticalScroll(rememberScrollState())){
+                            TextField (value = text, onValueChange = vm::updateText,
+                                Modifier
+                                    .height(IntrinsicSize.Min)
+                                    .padding(start = 16.dp, end = 16.dp)
+                                    .fillMaxWidth()
+                                    .shadow(elevation = 3.dp), minLines = 5,
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedContainerColor = textFieldBackgroundColor,
+                                    unfocusedContainerColor = textFieldBackgroundColor,
+                                    focusedTextColor = textFieldTextColor,
+                                    unfocusedTextColor = textFieldTextColor,
+                                ), shape = RoundedCornerShape(8.dp),
+                                placeholder = { Text(stringResource(id = R.string.to_do_placeholder_text), Modifier.alpha(0.3f)) })
+                            Column(Modifier.padding(start = 16.dp, end = 16.dp)){
+                                Column(Modifier.padding(top = 16.dp, bottom = 16.dp)){
+                                    SettingHeaderStyle{
+                                        Text(stringResource(id = R.string.priority), fontSize = 16.sp)
+                                    }
+                                    Box {
+                                        var expanded: Boolean by remember { mutableStateOf(false) }
+                                        SettingTextStyle {
+                                            Text(
+                                                text = stringResource(id = when (priority) {
+                                                    ToDoPriority.Low -> R.string.low_priority
+                                                    ToDoPriority.Medium -> R.string.medium_priority
+                                                    ToDoPriority.High -> R.string.high_priority
+                                                }),
+                                                fontSize = 14.sp,
+                                                modifier = Modifier.clickable { expanded = true })
+                                        }
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false},
+                                            modifier = Modifier.background(dropDownItemMenuColor)
+                                        ) {
+                                            DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.Low)
+                                                expanded = false }, text = { Text(stringResource(id = R.string.low_priority)) })
+                                            DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.Medium)
+                                                expanded = false }, text = { Text(stringResource(id = R.string.medium_priority)) })
+                                            DropdownMenuItem(onClick = { vm.updatePriority(ToDoPriority.High)
+                                                expanded = false }, text = { Text(stringResource(id = R.string.high_priority)) })
+                                        }
+                                    }
+                                }
+                                HorizontalDivider()
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp, bottom = 16.dp)){
+                                    Column {
+                                        SettingHeaderStyle{
+                                            Text(stringResource(id = R.string.deadline))
+                                        }
+                                        if(isDeadline)
+                                        {
+                                            SettingTextStyle {
+                                                Text(deadlineDate.toFormattedString(), color = blueColor,
+                                                    modifier = Modifier.clickable {
+                                                        datePickerDialog.setDate(deadlineDate)
+                                                        datePickerDialog.show() })
+                                            }
+                                        }
+                                    }
+                                    Switch(checked = isDeadline, onCheckedChange = { vm.updateIsDeadline(it) })
+                                }
+                                HorizontalDivider()
+                                Row(verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .alpha(if (deletable) 1f else 0.15f)
+                                        .clickable(indication = null,
+                                            interactionSource = remember { MutableInteractionSource() })
+                                        { if (deletable) vm.deleteToDo() }
+                                        .padding(top = 16.dp, bottom = 16.dp)){
+                                    Image(painter = painterResource(id = R.drawable.bin),
+                                        contentDescription = stringResource(id = R.string.delete_content_description),
+                                        Modifier
+                                            .height(24.dp)
+                                            .width(24.dp), colorFilter = ColorFilter.tint(color = if(deletable) redColor else textFieldTextColor))
+                                    Text(
+                                        stringResource(id = R.string.delete),
+                                        modifier = Modifier.padding(start = 12.dp), color = if(deletable) redColor else textFieldTextColor
+                                    )
                                 }
                             }
                         }
-                        Switch(checked = isDeadline, onCheckedChange = { vm.updateIsDeadline(it) })
-                    }
-                    HorizontalDivider()
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .alpha(if (deletable) 1f else 0.15f)
-                            .clickable(indication = null,
-                                interactionSource = remember { MutableInteractionSource() })
-                            { if (deletable) vm.deleteToDo() }
-                            .padding(top = 16.dp, bottom = 16.dp)){
-                        Image(painter = painterResource(id = R.drawable.bin),
-                            contentDescription = stringResource(id = R.string.delete_content_description),
-                            Modifier
-                                .height(24.dp)
-                                .width(24.dp), colorFilter = ColorFilter.tint(color = if(deletable) redColor else textFieldTextColor))
-                        Text(
-                            stringResource(id = R.string.delete),
-                            modifier = Modifier.padding(start = 12.dp), color = if(deletable) redColor else textFieldTextColor
-                        )
                     }
                 }
             }

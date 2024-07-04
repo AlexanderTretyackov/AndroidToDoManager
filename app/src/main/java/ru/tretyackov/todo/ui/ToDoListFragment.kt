@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import ru.tretyackov.todo.R
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.databinding.FragmentToDoListBinding
+import ru.tretyackov.todo.viewmodels.DataState
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 
 class ToDoItemDecoration(private val leftOffset:Int = 0,
@@ -46,12 +47,12 @@ class ToDoListFragment : Fragment() {
         binding = FragmentToDoListBinding.inflate(layoutInflater, container, false)
         val recyclerView = binding.recyclerView
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { toDo -> vm.onSwitchToDoCompleted(toDo) })
-        toDoAdapter.todos = vm.toDoListState.value
+        toDoAdapter.todos = vm.toDoListFilteredState.value
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
             {
-                vm.toDoListState.collect {
-                    toDoAdapter.todos = vm.toDoListState.value
+                vm.toDoListFilteredState.collect {
+                    toDoAdapter.todos = vm.toDoListFilteredState.value
                     refreshToDoList()
                 }
             }
@@ -71,6 +72,21 @@ class ToDoListFragment : Fragment() {
                 vm.completedCountState.collect { countCompleted ->
                     binding.textViewCompleted.text = getString(R.string.completed, countCompleted)
                 }
+            }
+        }
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
+            {
+                vm.dataState.collect { s ->
+                    binding.loadingLayout.visibility = if(s == DataState.Loading) View.VISIBLE else View.GONE
+                    binding.loadedLayout.visibility =  if(s == DataState.Loaded) View.VISIBLE else View.GONE
+                    binding.errorLayout.visibility =  if(s == DataState.Error) View.VISIBLE else View.GONE
+                }
+            }
+        }
+        binding.btnRefresh.setOnClickListener{
+            lifecycleScope.launch {
+                vm.refresh()
             }
         }
         recyclerView.adapter = toDoAdapter
