@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.tretyackov.todo.data.DataResult
 import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.data.ToDoPriority
 import ru.tretyackov.todo.data.TodoItem
@@ -22,7 +23,8 @@ interface IToDoViewModel{
     val isDeadlineState: StateFlow<Boolean>
     val deadlineDateState: StateFlow<Date>
     val deletableState: StateFlow<Boolean>
-    val showTextErrorState: StateFlow<Boolean>
+    val isLoadingState: StateFlow<Boolean>
+    val errorState: StateFlow<ToDoUpdateError>
     fun updateText(text: String)
     fun updatePriority(priority: ToDoPriority)
     fun updateIsDeadline(isDeadline:Boolean)
@@ -30,6 +32,12 @@ interface IToDoViewModel{
     fun deleteToDo()
     fun saveToDo()
     fun goBack()
+}
+
+enum class ToDoUpdateError{
+    None,
+    EmptyText,
+    Network,
 }
 
 class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoViewModel {
@@ -75,8 +83,11 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
     private val _deadlineDateState = MutableStateFlow(DateHelper.now())
     override val deadlineDateState = _deadlineDateState.asStateFlow()
 
-    private val _showTextErrorState = MutableStateFlow(false)
-    override val showTextErrorState = _showTextErrorState.asStateFlow()
+    private val _isLoadingState = MutableStateFlow(false)
+    override val isLoadingState = _isLoadingState.asStateFlow()
+
+    private val _errorState = MutableStateFlow(ToDoUpdateError.None)
+    override val errorState = _errorState.asStateFlow()
 
     override fun updateText(text: String)
     {
@@ -100,18 +111,29 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
         if(t != null)
         {
             viewModelScope.launch {
-                TodoItemsRepository.remove(t)
+                _isLoadingState.update { true }
+                val removeResult = TodoItemsRepository.remove(t)
+                _isLoadingState.update { false }
+                when (removeResult) {
+                    is DataResult.Loading -> goBack()
+                    is DataResult.Success -> goBack()
+                    is DataResult.Error -> {
+                        _errorState.update { ToDoUpdateError.Network }
+                        return@launch
+                    }
+                }
                 goBack()
             }
         }
     }
+
     override fun saveToDo()
     {
         val oldToDo = toDo
         val text = textState.value.trim()
         if(text.isEmpty())
         {
-            _showTextErrorState.update { true }
+            _errorState.update { ToDoUpdateError.EmptyText }
             return
         }
         val deadline = if(isDeadlineState.value) deadlineDateState.value else null
@@ -122,16 +144,32 @@ class ToDoViewModel(private val state: SavedStateHandle) : ViewModel(), IToDoVie
                 newToDoItem.name = text
                 newToDoItem.priority = priorityState.value
                 newToDoItem.deadline = deadline
-                TodoItemsRepository.update(oldToDo, newToDoItem)
+                _isLoadingState.update { true }
+                val result = TodoItemsRepository.update(oldToDo, newToDoItem)
+                _isLoadingState.update { false }
+                if(result is DataResult.Error)
+                {
+                    _errorState.update { ToDoUpdateError.Network }
+                    return@launch
+                }
             }
             else
-                TodoItemsRepository.add(
+            {
+                _isLoadingState.update { true }
+                val result = TodoItemsRepository.add(
                     TodoItem(
                         text, false,
                         priority = priorityState.value,
                         deadline = deadline
                     )
                 )
+                _isLoadingState.update { false }
+                if(result is DataResult.Error)
+                {
+                    _errorState.update { ToDoUpdateError.Network }
+                    return@launch
+                }
+            }
             goBack()
         }
     }

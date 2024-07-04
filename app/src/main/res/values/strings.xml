@@ -20,4 +20,9 @@
     <string name="high_priority">Высокая</string>
 
     <string name="error_empty_text_todo">Нельзя создать задачу с пустым текстом</string>
+    <string name="network_error">Ошибка сети</string>
+
+    <string name="loading_text">Идет загрузка, это будет быстро 😉</string>
+    <string name="loading_error_text">Не удалось загрузить данные 😥</string>
+    <string name="retry">Повторить</string>
 </resources>

@@ -18,6 +18,7 @@ import ru.tretyackov.todo.R
 import ru.tretyackov.todo.compose.ToDoView
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.utilities.DateHelper
+import ru.tretyackov.todo.viewmodels.ToDoUpdateError
 import ru.tretyackov.todo.viewmodels.ToDoViewModel
 import java.util.Calendar
 import java.util.Date
@@ -42,10 +43,16 @@ class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.showTextErrorState.collect {
-                    if(it) Toast.makeText(this@ToDoFragment.requireContext(),
-                        R.string.error_empty_text_todo, Toast.LENGTH_SHORT)
-                        .show() }
+                vm.errorState.collect {
+                    val errorText = when(it){
+                        ToDoUpdateError.None -> null
+                        ToDoUpdateError.EmptyText -> context?.getString(R.string.error_empty_text_todo)
+                        ToDoUpdateError.Network -> context?.getString(R.string.network_error)
+                    }
+                    if(errorText != null)
+                        Toast.makeText(this@ToDoFragment.requireContext(),
+                            errorText, Toast.LENGTH_SHORT)
+                            .show() }
             }
         }
         val datePickerDialogImpl = object : IDatePickerDialog {
