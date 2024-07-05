@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import ru.tretyackov.todo.data.DataResult
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.data.TodoItemsRepository
+import ru.tretyackov.todo.utilities.IConnectivityMonitor
 
 enum class DataState{
     Uninitialized,Loading,Loaded,Error
@@ -47,6 +48,17 @@ class ToDoListViewModel : ViewModel() {
                     is DataResult.Error -> {
                         _dataState.update { DataState.Error }
                     }
+                }
+            }
+        }
+    }
+
+    fun setConnectivityMonitor(connectivityMonitor : IConnectivityMonitor){
+        viewModelScope.launch {
+            connectivityMonitor.isAvailableFlow.collect{ isAvailable ->
+                if(isAvailable && dataState.value == DataState.Error)
+                {
+                    refresh()
                 }
             }
         }

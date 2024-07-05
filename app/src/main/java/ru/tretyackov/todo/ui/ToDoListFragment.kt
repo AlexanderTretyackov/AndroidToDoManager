@@ -1,39 +1,23 @@
 package ru.tretyackov.todo.ui
 
-import android.graphics.Rect
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import ru.tretyackov.todo.R
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.databinding.FragmentToDoListBinding
+import ru.tretyackov.todo.utilities.ConnectivityMonitor
 import ru.tretyackov.todo.viewmodels.DataState
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
-
-class ToDoItemDecoration(private val leftOffset:Int = 0,
-                         private val topOffset:Int = 0,
-                         private val rightOffset:Int = 0,
-                         private val bottomOffset:Int = 0,
-    ) : RecyclerView.ItemDecoration(){
-    override fun getItemOffsets(
-        outRect: Rect,
-        view: View,
-        parent: RecyclerView,
-        state: RecyclerView.State
-    ) {
-        outRect.set(leftOffset, topOffset, rightOffset, bottomOffset)
-    }
-}
 
 class ToDoListFragment : Fragment() {
     private lateinit var toDoAdapter: ToDoAdapter
@@ -44,6 +28,7 @@ class ToDoListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        vm.setConnectivityMonitor(ConnectivityMonitor(requireContext()))
         binding = FragmentToDoListBinding.inflate(layoutInflater, container, false)
         val recyclerView = binding.recyclerView
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { toDo -> vm.onSwitchToDoCompleted(toDo) })
