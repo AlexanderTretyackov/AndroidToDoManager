@@ -1,6 +1,8 @@
 package ru.tretyackov.todo.data
 
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -11,6 +13,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 const val token = "ТОКЕН"
 
@@ -27,25 +30,54 @@ interface ToDoListApi {
     suspend fun delete(@Header("X-Last-Known-Revision") revision: Int, @Path("id") id: String) : OperatedToDoItemDto
 }
 
+class AuthInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request().newBuilder()
+            .header("Authorization", "Bearer $token")
+            .build()
+        return chain.proceed(request)
+    }
+}
+
+class RetryInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        var retryCount = 3
+        var response = chain.proceed(request)
+        while(!response.isSuccessful && retryCount > 0)
+        {
+            response.close()
+            response = chain.proceed(request)
+            retryCount--
+        }
+        return response
+    }
+}
+
 object ToDoListApiHelper {
     private const val BASE_URL = "https://hive.mrdekk.ru/todo/"
     private var api: ToDoListApi? = null
-       fun getInstance(): ToDoListApi {
-        if(api != null)
-        {
+    fun getInstance(): ToDoListApi {
+        if(api != null){
             return api as ToDoListApi
         }
-       val client = OkHttpClient().newBuilder().addInterceptor { chain ->
-           val original = chain.request()
-           val request = original.newBuilder()
-               .header("Authorization", "Bearer $token")
-               .build()
-           chain.proceed(request) }.build()
-        api = Retrofit.Builder().baseUrl(BASE_URL)
+       val createdApi = createApi()
+        api = createdApi
+        return createdApi
+    }
+
+    private fun createApi() : ToDoListApi{
+        val client = OkHttpClient().newBuilder()
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
+            .addInterceptor(RetryInterceptor())
+            .addInterceptor(AuthInterceptor())
+            .build()
+        return Retrofit.Builder().baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ToDoListApi::class.java)
-        return api as ToDoListApi
     }
 }
