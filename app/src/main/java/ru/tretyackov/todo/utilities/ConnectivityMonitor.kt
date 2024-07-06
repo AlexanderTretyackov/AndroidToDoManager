@@ -9,12 +9,15 @@ import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
+import javax.inject.Singleton
 
 interface IConnectivityMonitor{
     val isAvailableFlow: Flow<Boolean>
 }
 
-class ConnectivityMonitor(ctx: Context) : IConnectivityMonitor {
+@Singleton
+class ConnectivityMonitor @Inject constructor(ctx: Context) : IConnectivityMonitor {
     override val isAvailableFlow = MutableStateFlow(false)
     private val networkRequest: NetworkRequest = NetworkRequest.Builder()
         .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)

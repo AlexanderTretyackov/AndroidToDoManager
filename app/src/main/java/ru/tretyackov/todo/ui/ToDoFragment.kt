@@ -1,21 +1,14 @@
 package ru.tretyackov.todo.ui
 
 import android.app.DatePickerDialog
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -24,8 +17,10 @@ import ru.tretyackov.todo.R
 import ru.tretyackov.todo.compose.ToDoView
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.utilities.DateHelper
+import ru.tretyackov.todo.utilities.getAppComponent
 import ru.tretyackov.todo.viewmodels.ToDoUpdateError
 import ru.tretyackov.todo.viewmodels.ToDoViewModel
+import ru.tretyackov.todo.viewmodels.lazyViewModel
 import java.util.Calendar
 import java.util.Date
 
@@ -35,11 +30,13 @@ interface IDatePickerDialog{
 }
 
 class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
+    val vm: ToDoViewModel by lazyViewModel { stateHandle ->
+        getAppComponent().toDoViewModelFactory().create(stateHandle)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val vm: ToDoViewModel by viewModels()
         if(todoItemParam != null)
             vm.updateTodoItem(todoItemParam)
         viewLifecycleOwner.lifecycleScope.launch {

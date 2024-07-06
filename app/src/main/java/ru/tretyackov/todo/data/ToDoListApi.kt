@@ -1,5 +1,8 @@
 package ru.tretyackov.todo.data
 
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -13,7 +16,10 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import ru.tretyackov.todo.utilities.ConnectivityMonitor
+import ru.tretyackov.todo.utilities.IConnectivityMonitor
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
 const val token = "ТОКЕН"
 
@@ -54,19 +60,13 @@ class RetryInterceptor : Interceptor {
     }
 }
 
-object ToDoListApiHelper {
-    private const val BASE_URL = "https://hive.mrdekk.ru/todo/"
-    private var api: ToDoListApi? = null
-    fun getInstance(): ToDoListApi {
-        if(api != null){
-            return api as ToDoListApi
-        }
-       val createdApi = createApi()
-        api = createdApi
-        return createdApi
-    }
-
-    private fun createApi() : ToDoListApi{
+@Module
+object ApiModule{
+    @Singleton
+    @Provides
+    fun provideApi(): ToDoListApi = createApi()
+    private fun createApi() : ToDoListApi {
+        val BASE_URL = "https://hive.mrdekk.ru/todo/"
         val client = OkHttpClient().newBuilder()
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
@@ -80,4 +80,11 @@ object ToDoListApiHelper {
             .build()
             .create(ToDoListApi::class.java)
     }
+}
+
+@Module
+interface ConnectivityModule{
+    @Singleton
+    @Binds
+    fun bindConnectivityMonitor(impl : ConnectivityMonitor): IConnectivityMonitor
 }
