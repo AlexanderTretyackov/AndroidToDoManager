@@ -15,20 +15,19 @@ import kotlinx.coroutines.launch
 import ru.tretyackov.todo.R
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.databinding.FragmentToDoListBinding
-import ru.tretyackov.todo.utilities.ConnectivityMonitor
+import ru.tretyackov.todo.utilities.FactoryViewModel
+import ru.tretyackov.todo.utilities.getAppComponent
 import ru.tretyackov.todo.viewmodels.DataState
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 
 class ToDoListFragment : Fragment() {
     private lateinit var toDoAdapter: ToDoAdapter
     private lateinit var binding : FragmentToDoListBinding
-    private val vm: ToDoListViewModel by viewModels()
-
+    private val vm: ToDoListViewModel by viewModels { FactoryViewModel(getAppComponent().toDoListViewModel()) }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        vm.setConnectivityMonitor(ConnectivityMonitor(requireContext()))
         binding = FragmentToDoListBinding.inflate(layoutInflater, container, false)
         val recyclerView = binding.recyclerView
         toDoAdapter = ToDoAdapter({toDo -> openToDo(toDo)}, { toDo -> vm.onSwitchToDoCompleted(toDo) })

@@ -7,11 +7,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
+import ru.tretyackov.todo.di.AppComponent
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object TodoItemsRepository
+@Singleton
+class TodoItemsRepository @Inject constructor(private val toDoApi : ToDoListApi)
 {
     private var revision : Int = 0
-    private val toDoApi = ToDoListApiHelper.getInstance()
     private val context = newSingleThreadContext("CounterContext")
     private val _todosState = MutableStateFlow<DataResult<List<TodoItem>>>(DataResult.Loading())
 

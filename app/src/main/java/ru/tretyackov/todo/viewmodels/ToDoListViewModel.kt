@@ -9,13 +9,17 @@ import kotlinx.coroutines.launch
 import ru.tretyackov.todo.data.DataResult
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.data.TodoItemsRepository
+import ru.tretyackov.todo.di.AppComponent
+import ru.tretyackov.todo.di.DaggerAppComponent
 import ru.tretyackov.todo.utilities.IConnectivityMonitor
+import javax.inject.Inject
 
 enum class DataState{
     Uninitialized,Loading,Loaded,Error
 }
 
-class ToDoListViewModel : ViewModel() {
+class ToDoListViewModel @Inject constructor(private val todoItemsRepository: TodoItemsRepository,
+                                            private val connectivityMonitor : IConnectivityMonitor) : ViewModel() {
     private val _showWithCompletedState = MutableStateFlow(false)
     val showWithCompletedState = _showWithCompletedState.asStateFlow()
 
@@ -32,7 +36,7 @@ class ToDoListViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            val data = TodoItemsRepository.getAll()
+            val data = todoItemsRepository.getAll()
             data.collect{ newData ->
                 when (newData) {
                     is DataResult.Loading -> {
@@ -51,9 +55,6 @@ class ToDoListViewModel : ViewModel() {
                 }
             }
         }
-    }
-
-    fun setConnectivityMonitor(connectivityMonitor : IConnectivityMonitor){
         viewModelScope.launch {
             connectivityMonitor.isAvailableFlow.collect{ isAvailable ->
                 if(isAvailable && dataState.value == DataState.Error)
@@ -79,14 +80,14 @@ class ToDoListViewModel : ViewModel() {
     }
 
     suspend fun refresh(){
-        TodoItemsRepository.refresh()
+        todoItemsRepository.refresh()
     }
 
     fun onSwitchToDoCompleted(toDo:TodoItem)
     {
         val newToDo = toDo.copy()
         viewModelScope.launch {
-            TodoItemsRepository.update(toDo, newToDo)
+            todoItemsRepository.update(toDo, newToDo)
         }
     }
 }
