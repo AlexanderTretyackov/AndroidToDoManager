@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -61,18 +62,18 @@ class ToDoListFragment : Fragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
             {
-                vm.dataState.collect { s ->
-                    binding.loadingLayout.visibility = if(s == DataState.Loading) View.VISIBLE else View.GONE
-                    binding.loadedLayout.visibility =  if(s == DataState.Loaded) View.VISIBLE else View.GONE
-                    binding.errorLayout.visibility =  if(s == DataState.Error) View.VISIBLE else View.GONE
+                vm.dataState.collect { dataState ->
+                    binding.loadingLayout.visibility = if(dataState == DataState.Loading) View.VISIBLE else View.GONE
+                    if(dataState == DataState.Error)
+                    {
+                        Toast.makeText(this@ToDoListFragment.requireContext(),
+                            getString(R.string.loading_error_text), Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
         }
-        binding.btnRefresh.setOnClickListener{
-            lifecycleScope.launch {
-                vm.refresh()
-            }
-        }
+
         recyclerView.adapter = toDoAdapter
         val density = requireContext().resources.displayMetrics.density
         recyclerView.addItemDecoration(

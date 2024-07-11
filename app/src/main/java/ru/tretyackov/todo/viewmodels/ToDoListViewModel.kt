@@ -6,20 +6,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.tretyackov.todo.data.DataResult
+import ru.tretyackov.todo.data.RefreshState
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.data.TodoItemsRepository
-import ru.tretyackov.todo.di.AppComponent
-import ru.tretyackov.todo.di.DaggerAppComponent
-import ru.tretyackov.todo.utilities.IConnectivityMonitor
+import ru.tretyackov.todo.utilities.DateHelper
 import javax.inject.Inject
 
-enum class DataState{
-    Uninitialized,Loading,Loaded,Error
+enum class DataState {
+    Uninitialized, Loading, Loaded, Error
 }
 
-class ToDoListViewModel @Inject constructor(private val todoItemsRepository: TodoItemsRepository,
-                                            private val connectivityMonitor : IConnectivityMonitor) : ViewModel() {
+class ToDoListViewModel @Inject constructor(private val todoItemsRepository: TodoItemsRepository) :
+    ViewModel() {
     private val _showWithCompletedState = MutableStateFlow(false)
     val showWithCompletedState = _showWithCompletedState.asStateFlow()
 
@@ -36,56 +34,55 @@ class ToDoListViewModel @Inject constructor(private val todoItemsRepository: Tod
 
     init {
         viewModelScope.launch {
-            val data = todoItemsRepository.getAll()
-            data.collect{ newData ->
-                when (newData) {
-                    is DataResult.Loading -> {
-                        _dataState.update { DataState.Loading }
-                    }
-                    is DataResult.Success -> {
-                        val toDoList = newData.data ?: listOf()
-                        _toDoListState.update { toDoList }
-                        _toDoListFilteredState.update { getFilterToDos(toDoList, showWithCompletedState.value) }
-                        _completedCountState.update { toDoList.count { it.completed } }
-                        _dataState.update { DataState.Loaded }
-                    }
-                    is DataResult.Error -> {
-                        _dataState.update { DataState.Error }
-                    }
+            val toDoListFlow = todoItemsRepository.getAll()
+            toDoListFlow.collect { toDoList ->
+                _toDoListState.update { toDoList }
+                _toDoListFilteredState.update {
+                    getFilterToDos(
+                        toDoList,
+                        showWithCompletedState.value
+                    )
+                }
+                _completedCountState.update {
+                    toDoList.count { it.completed }
                 }
             }
         }
         viewModelScope.launch {
-            connectivityMonitor.isAvailableFlow.collect{ isAvailable ->
-                if(isAvailable && dataState.value == DataState.Error)
-                {
-                    refresh()
+            todoItemsRepository.refreshState.collect { refreshState ->
+                when (refreshState) {
+                    RefreshState.CachedLoading -> _dataState.update { DataState.Loading }
+                    RefreshState.CachedError -> _dataState.update { DataState.Error }
+                    RefreshState.Success -> _dataState.update { DataState.Loaded }
                 }
             }
         }
     }
 
-    private fun getFilterToDos(todos:List<TodoItem>, withCompleted:Boolean) : List<TodoItem>
-    {
-        return if(!withCompleted) todos.filter { toDo -> !toDo.completed } else todos
+    private fun getFilterToDos(todos: List<TodoItem>, withCompleted: Boolean): List<TodoItem> {
+        return if (!withCompleted) todos.filter { toDo -> !toDo.completed } else todos
     }
 
-    fun filter(withCompleted:Boolean)
-    {
-        if(withCompleted != showWithCompletedState.value)
-        {
+    fun filter(withCompleted: Boolean) {
+        if (withCompleted != showWithCompletedState.value) {
             _showWithCompletedState.update { withCompleted }
             _toDoListFilteredState.update { getFilterToDos(_toDoListState.value, withCompleted) }
         }
     }
 
-    suspend fun refresh(){
+    suspend fun refresh() {
         todoItemsRepository.refresh()
     }
 
-    fun onSwitchToDoCompleted(toDo:TodoItem)
-    {
+    fun onSwitchToDoCompleted(toDo: TodoItem) {
         val newToDo = toDo.copy()
+        _completedCountState.update { _completedCountState.value + if (toDo.completed) 1 else -1 }
+        _toDoListFilteredState.update {
+            getFilterToDos(
+                _toDoListState.value,
+                showWithCompletedState.value
+            )
+        }
         viewModelScope.launch {
             todoItemsRepository.update(toDo, newToDo)
         }

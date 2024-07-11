@@ -1,6 +1,5 @@
-package ru.tretyackov.todo.data
+package ru.tretyackov.todo.data.network
 
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import okhttp3.Interceptor
@@ -12,16 +11,20 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.tretyackov.todo.utilities.ConnectivityMonitor
-import ru.tretyackov.todo.utilities.IConnectivityMonitor
+import ru.tretyackov.todo.data.network.dto.CreateToDoItemDto
+import ru.tretyackov.todo.data.network.dto.OperatedToDoItemDto
+import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
+import ru.tretyackov.todo.data.network.dto.ToDoListDto
+import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val token = "–¢–û–ö–ï–ù"
+const val token = "“Œ ≈Õ"
 
 interface ToDoListApi {
     @GET("list")
@@ -29,11 +32,14 @@ interface ToDoListApi {
     @POST("list")
     suspend fun add(@Header("X-Last-Known-Revision") revision: Int,
                     @Query("id") id: String,
-                    @Body createToDoItemDto: CreateToDoItemDto) : OperatedToDoItemDto
+                    @Body createToDoItemDto: CreateToDoItemDto
+    ) : OperatedToDoItemDto
     @PUT("list/{id}")
     suspend fun update(@Header("X-Last-Known-Revision") revision: Int, @Path("id") id: String, @Body updateToDoItemDto: UpdateToDoItemDto) : OperatedToDoItemDto
     @DELETE("list/{id}")
     suspend fun delete(@Header("X-Last-Known-Revision") revision: Int, @Path("id") id: String) : OperatedToDoItemDto
+    @PATCH("list")
+    suspend fun patch(@Header("X-Last-Known-Revision") revision: Int, @Body patchToDoListDto : PatchToDoListDto) : ToDoListDto
 }
 
 class AuthInterceptor : Interceptor {
@@ -80,11 +86,4 @@ object ApiModule{
             .build()
             .create(ToDoListApi::class.java)
     }
-}
-
-@Module
-interface ConnectivityModule{
-    @Singleton
-    @Binds
-    fun bindConnectivityMonitor(impl : ConnectivityMonitor): IConnectivityMonitor
 }
