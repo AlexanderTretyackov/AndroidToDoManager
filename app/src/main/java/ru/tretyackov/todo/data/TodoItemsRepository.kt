@@ -1,129 +1,251 @@
 package ru.tretyackov.todo.data
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
-import ru.tretyackov.todo.di.AppComponent
+import retrofit2.HttpException
+import ru.tretyackov.todo.data.database.TodoCachedOperationType
+import ru.tretyackov.todo.data.database.TodoDao
+import ru.tretyackov.todo.data.database.TodoItemEntity
+import ru.tretyackov.todo.data.database.toModel
+import ru.tretyackov.todo.data.network.DataResult
+import ru.tretyackov.todo.data.network.ToDoListApi
+import ru.tretyackov.todo.data.network.dto.CreateToDoItemDto
+import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
+import ru.tretyackov.todo.data.network.dto.ToDoItemDto
+import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
+import ru.tretyackov.todo.data.network.dto.toModel
+import ru.tretyackov.todo.utilities.DateHelper
+import ru.tretyackov.todo.utilities.IConnectivityMonitor
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class TodoItemsRepository @Inject constructor(private val toDoApi : ToDoListApi)
-{
-    private var revision : Int = 0
-    private val context = newSingleThreadContext("CounterContext")
-    private val _todosState = MutableStateFlow<DataResult<List<TodoItem>>>(DataResult.Loading())
+enum class RefreshState {
+    CachedLoading,
+    CachedError,
+    Success,
+}
 
-    suspend fun getAll() : Flow<DataResult<List<TodoItem>>> {
-        CoroutineScope(context).launch{
-            _todosState.update { getToDoList() }
+private const val SERVER_UNSYNCHRONIZED_DATA_ERROR = "unsynchronized data"
+
+@Singleton
+class TodoItemsRepository @Inject constructor(
+    private val toDoApi: ToDoListApi,
+    private val connectivityMonitor: IConnectivityMonitor,
+    private val todoDao: TodoDao
+) {
+    private var revision: Int = 0
+    private val context = newSingleThreadContext("CounterContext")
+    private val _todosState = MutableStateFlow<List<TodoItem>>(listOf())
+    private val _refreshState = MutableStateFlow(RefreshState.CachedLoading)
+    val refreshState = _refreshState.asStateFlow()
+
+    init {
+        CoroutineScope(context).launch {
+            withContext(context)
+            {
+                _refreshState.update { RefreshState.CachedLoading }
+                todoDao.getAllExceptDeletedFlow().collect { newDatabaseList ->
+                    _todosState.update { newDatabaseList.map { toDoItemEntity -> toDoItemEntity.toModel() } }
+                }
+            }
+        }
+        CoroutineScope(context).launch {
+            withContext(context)
+            {
+                connectivityMonitor.isAvailableFlow.collect { isAvailable ->
+                    if (isAvailable && refreshState.value != RefreshState.CachedLoading) {
+                        Log.i("TodoItemsRepository", "connectivityMonitor")
+                        refresh()
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun getAll(): Flow<List<TodoItem>> {
+        CoroutineScope(context).launch {
+            Log.i("TodoItemsRepository", "getAll")
+            refreshList()
         }
         return _todosState
+    }
+
+    private suspend fun refreshList() {
+        Log.i("TodoItemsRepository", "refreshList")
+        _refreshState.update { RefreshState.CachedLoading }
+        val dataResult = getToDoList()
+        if (dataResult !is DataResult.Success) {
+            _refreshState.update { RefreshState.CachedError }
+            return
+        }
+        val todoApiList = dataResult.data
+        if (todoApiList == null) {
+            _refreshState.update { RefreshState.CachedError }
+            return
+        }
+        val todoDatabaseList = todoDao.getAllWithOperation()
+        val mergedList = mergeDatabaseAndApiLists(todoDatabaseList, todoApiList)
+        if (mergedList != todoApiList) {
+            val patchResult = safeExecuteRequest {
+                toDoApi.patch(
+                    revision,
+                    PatchToDoListDto(mergedList, revision)
+                )
+            }
+            if (patchResult !is DataResult.Success) {
+                _refreshState.update { RefreshState.CachedError }
+                return
+            }
+            if(patchResult.data != null)
+                revision = patchResult.data.revision
+        }
+        todoDao.deleteAll()
+        val listModel = mergedList.map { it.toModel() }
+        todoDao.insertAll(listModel.map { it.toDatabaseEntity() })
+        _refreshState.update { RefreshState.Success }
+    }
+
+    private suspend fun mergeDatabaseAndApiLists(
+        unsavedToDoList: List<TodoItemEntity>,
+        apiList: List<ToDoItemDto>
+    ): List<ToDoItemDto> {
+        val apiMap = apiList.associateBy { it.id }
+        val newApiList = apiList.toMutableList()
+        if (unsavedToDoList.isEmpty()) {
+            return apiList
+        }
+        for (unsavedToDo in unsavedToDoList) {
+            when (unsavedToDo.operationType) {
+                TodoCachedOperationType.Created -> newApiList.add(unsavedToDo.toModel().toDto())
+                TodoCachedOperationType.Updated -> {
+                    val toDoFromApi = apiMap[unsavedToDo.id]
+                    if (toDoFromApi != null) {
+                        if (unsavedToDo.lastUpdatedAt > toDoFromApi.changedAt) {
+                            val index = apiList.indexOf(toDoFromApi)
+                            newApiList[index] = unsavedToDo.toModel().toDto()
+                        }
+                    } else {
+                        newApiList.add(unsavedToDo.toModel().toDto())
+                    }
+                }
+
+                TodoCachedOperationType.Deleted -> {
+                    if (apiMap.containsKey(unsavedToDo.id)) {
+                        newApiList.remove(apiList.first { it.id == unsavedToDo.id })
+                    }
+                }
+
+                null -> {}
+            }
+        }
+        return newApiList
     }
 
     suspend fun refresh() {
         withContext(context)
         {
-            _todosState.update { DataResult.Loading() }
-            _todosState.update { getToDoList() }
+            refreshList()
         }
     }
 
-    private fun getOldList() : List<TodoItem>? {
-        val listDataResult = _todosState.value
-        if (listDataResult is DataResult.Success) {
-           return listDataResult.data
-        }
-        return null
-    }
-
-    private fun updateOldList(newList : List<TodoItem>) {
-        _todosState.update { DataResult.Success(newList) }
-    }
-
-    suspend fun add(todoItem: TodoItem) : DataResult<TodoItem> {
-        return withContext(context){
-            try {
-                val createdToDoItemDto = toDoApi.add(revision, todoItem.id, CreateToDoItemDto(todoItem.toDto()))
-                revision = createdToDoItemDto.revision
-                val toDo = createdToDoItemDto.element.toModel()
-                val oldList = getOldList()
-                if(oldList != null)
-                {
-                    val newList = oldList.toMutableList()
-                    newList.add(toDo)
-                    updateOldList(newList)
+    private suspend fun <T> safeExecuteRequest(func: suspend () -> T): DataResult<T> {
+        try {
+            val funcResult = func()
+            return DataResult.Success(funcResult)
+        } catch (ex: Exception) {
+            return when (ex) {
+                is SocketTimeoutException, is UnknownHostException -> {
+                    Log.i("handle", "UnknownHostException")
+                    DataResult.Error.NetworkError("Error")
                 }
-                return@withContext DataResult.Success(toDo)
-            }
-            catch (ex: Exception){
-                return@withContext DataResult.Error("Error")
+                is HttpException -> {
+                    val errorString = ex.response()?.errorBody()?.string()
+                    if(ex.code() == 400 && errorString == "unsynchronized data")
+                    {
+                        DataResult.Error.UnsynchronizedDaraError(SERVER_UNSYNCHRONIZED_DATA_ERROR)
+                    }
+                    else{
+                        DataResult.Error.AnotherError("Error")
+                    }
+                }
+                else -> {
+                    Log.i("handle", "another $ex")
+                    DataResult.Error.AnotherError("Error")
+                }
             }
         }
     }
 
-    private suspend fun getToDoList() : DataResult<List<TodoItem>> {
-        return withContext(context){
-            try{
+    suspend fun add(todoItem: TodoItem): DataResult<TodoItem> {
+        return withContext(context) {
+            todoDao.add(todoItem.toDatabaseEntity())
+            todoDao.markToDoCreated(todoItem.id)
+            val addResult = safeExecuteRequest {
+                val createdToDoItemDto =
+                    toDoApi.add(revision, todoItem.id, CreateToDoItemDto(todoItem.toDto()))
+                revision = createdToDoItemDto.revision
+                return@safeExecuteRequest createdToDoItemDto.element.toModel()
+            }
+            if (addResult is DataResult.Success) {
+                todoDao.unmarkToDo(todoItem.id)
+            }
+            return@withContext addResult
+        }
+    }
+
+    private suspend fun getToDoList(): DataResult<List<ToDoItemDto>> {
+        return withContext(context) {
+            return@withContext safeExecuteRequest {
                 val toDoListDto = toDoApi.getToDoList()
                 revision = toDoListDto.revision
-                val listModel = toDoListDto.toModel()
-                return@withContext DataResult.Success(listModel)
-            }
-            catch (ex: Exception){
-                return@withContext DataResult.Error("Error")
+                return@safeExecuteRequest toDoListDto.list
             }
         }
     }
 
-    suspend fun remove(todoItem: TodoItem) : DataResult<String> {
-        return withContext(context){
-            try {
+    suspend fun remove(todoItem: TodoItem): DataResult<Unit> {
+        return withContext(context) {
+            todoDao.markToDoDeleted(todoItem.id)
+            val removeResult = safeExecuteRequest {
                 val deletedToDoItemDto = toDoApi.delete(revision, todoItem.id)
                 revision = deletedToDoItemDto.revision
-                val oldList = getOldList()
-                if(oldList != null)
-                {
-                    val newList = oldList.toMutableList()
-                    newList.remove(todoItem)
-                    updateOldList(newList)
-                }
-                return@withContext DataResult.Success("Success")
+                todoDao.deleteById(todoItem.id)
             }
-            catch (ex: Exception){
-                return@withContext DataResult.Error("Error")
-            }
+            return@withContext removeResult
         }
     }
 
-    suspend fun update(oldTodoItem: TodoItem, newTodoItem: TodoItem) : DataResult<TodoItem> {
-        return withContext(context){
-            try {
-                val updatedToDoItemDto = toDoApi.update(revision, oldTodoItem.id, UpdateToDoItemDto(newTodoItem.toDto()))
-                revision = updatedToDoItemDto.revision
-                val oldList = getOldList()
-                if(oldList != null)
-                {
-                    val newList = oldList.toMutableList()
-                    val indexOldTodoItem = newList.indexOf(oldTodoItem)
-                    newList[indexOldTodoItem] = newTodoItem
-                    updateOldList(newList)
-                }
-                return@withContext DataResult.Success(newTodoItem)
-            }
-            catch (ex: Exception){
-                return@withContext DataResult.Error("Error")
-            }
-        }
-    }
-
-    suspend fun find(id:String): TodoItem?{
+    suspend fun update(oldTodoItem: TodoItem, newTodoItem: TodoItem): DataResult<TodoItem> {
         return withContext(context) {
-           return@withContext getOldList()?.find { toDo -> toDo.id == id }
+            newTodoItem.lastUpdatedAt = DateHelper.now()
+            todoDao.update(newTodoItem.toDatabaseEntity())
+            todoDao.markToDoUpdated(newTodoItem.id)
+            val updateResult = safeExecuteRequest {
+                val updatedToDoItemDto =
+                    toDoApi.update(revision, oldTodoItem.id, UpdateToDoItemDto(newTodoItem.toDto()))
+                revision = updatedToDoItemDto.revision
+                return@safeExecuteRequest newTodoItem
+            }
+            if (updateResult is DataResult.Success) {
+                todoDao.unmarkToDo(newTodoItem.id)
+            }
+            return@withContext updateResult
+        }
+    }
+
+    suspend fun find(id: String): TodoItem? {
+        return withContext(context) {
+            return@withContext todoDao.getById(id)?.toModel()
         }
     }
 }

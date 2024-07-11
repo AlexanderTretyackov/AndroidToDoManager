@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.tretyackov.todo.data.DataResult
+import ru.tretyackov.todo.data.network.DataResult
 import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.data.ToDoPriority
 import ru.tretyackov.todo.data.TodoItem
@@ -150,7 +150,6 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
                     is DataResult.Success -> goBack()
                     is DataResult.Error -> {
                         _errorState.update { ToDoUpdateError.Network }
-                        return@launch
                     }
                 }
                 goBack()
@@ -175,13 +174,13 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
                 newToDoItem.name = text
                 newToDoItem.priority = priorityState.value
                 newToDoItem.deadline = deadline
+                newToDoItem.lastUpdatedAt = DateHelper.now()
                 _isLoadingState.update { true }
                 val result = todoItemsRepository.update(oldToDo, newToDoItem)
                 _isLoadingState.update { false }
                 if(result is DataResult.Error)
                 {
                     _errorState.update { ToDoUpdateError.Network }
-                    return@launch
                 }
             }
             else
@@ -198,12 +197,12 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
                 if(result is DataResult.Error)
                 {
                     _errorState.update { ToDoUpdateError.Network }
-                    return@launch
                 }
             }
             goBack()
         }
     }
+    
     override fun goBack()
     {
         _goBackState.update { true }
