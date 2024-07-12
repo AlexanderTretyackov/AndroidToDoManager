@@ -5,6 +5,7 @@ import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
+import dagger.Subcomponent
 import ru.tretyackov.todo.data.network.ApiModule
 import ru.tretyackov.todo.data.TodoItemsRepository
 import ru.tretyackov.todo.data.database.DatabaseModule
@@ -14,12 +15,12 @@ import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 import ru.tretyackov.todo.viewmodels.ToDoViewModel
 import javax.inject.Singleton
 
-@Component(modules = [ApiModule::class, DatabaseModule::class, ConnectivityModule::class])
+@Component(modules = [ApiModule::class, DatabaseModule::class, ConnectivityModule::class, SubcomponentsModule::class])
 @Singleton
 interface AppComponent {
     fun todoItemsRepository() : TodoItemsRepository
     fun toDoListViewModel(): ToDoListViewModel
-    fun toDoViewModelFactory(): ToDoViewModel.Factory
+    fun toDoComponent(): ToDoComponent.Factory
     @Component.Factory
     interface AppComponentFactory{
         fun create(@BindsInstance context: Context) : AppComponent
@@ -31,4 +32,16 @@ interface ConnectivityModule{
     @Singleton
     @Binds
     fun bindConnectivityMonitor(impl : ConnectivityMonitor): IConnectivityMonitor
+}
+
+@Module(subcomponents = [ToDoComponent::class])
+class SubcomponentsModule {}
+
+@Subcomponent
+interface ToDoComponent{
+    fun toDoViewModelFactory(): ToDoViewModel.Factory
+    @Subcomponent.Factory
+    interface Factory {
+        fun create(): ToDoComponent
+    }
 }
