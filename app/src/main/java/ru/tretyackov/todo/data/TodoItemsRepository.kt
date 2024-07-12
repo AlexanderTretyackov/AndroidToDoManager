@@ -106,7 +106,7 @@ class TodoItemsRepository @Inject constructor(
                 _refreshState.update { RefreshState.CachedError }
                 return
             }
-            if(patchResult.data != null)
+            if (patchResult.data != null)
                 revision = patchResult.data.revision
         }
         todoDao.deleteAll()
@@ -158,9 +158,34 @@ class TodoItemsRepository @Inject constructor(
         }
     }
 
+    private suspend fun <T> retryOnUnsynchronized(func: suspend () -> T): T {
+        var count = 3
+        var exception: Exception? = null
+        while (count > 0) {
+            try {
+                val funcResult = func()
+                return funcResult
+            } catch (ex: HttpException) {
+                val errorString = ex.response()?.errorBody()?.string()
+                if (ex.code() == 400 && errorString == SERVER_UNSYNCHRONIZED_DATA_ERROR) {
+                    if (count == 1)
+                    {
+                        throw ex
+                    }
+                    refreshList()
+                    exception = ex
+                } else {
+                    throw ex
+                }
+            }
+            count--
+        }
+        throw exception!!
+    }
+
     private suspend fun <T> safeExecuteRequest(func: suspend () -> T): DataResult<T> {
         try {
-            val funcResult = func()
+            val funcResult = retryOnUnsynchronized(func)
             return DataResult.Success(funcResult)
         } catch (ex: Exception) {
             return when (ex) {
@@ -169,14 +194,8 @@ class TodoItemsRepository @Inject constructor(
                     DataResult.Error.NetworkError("Error")
                 }
                 is HttpException -> {
-                    val errorString = ex.response()?.errorBody()?.string()
-                    if(ex.code() == 400 && errorString == "unsynchronized data")
-                    {
-                        DataResult.Error.UnsynchronizedDaraError(SERVER_UNSYNCHRONIZED_DATA_ERROR)
-                    }
-                    else{
-                        DataResult.Error.AnotherError("Error")
-                    }
+                    Log.i("handle", "HttpException $ex")
+                    DataResult.Error.AnotherError("Error")
                 }
                 else -> {
                     Log.i("handle", "another $ex")
