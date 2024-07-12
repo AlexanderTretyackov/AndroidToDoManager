@@ -1,5 +1,11 @@
 plugins {
     id("android-app-convention")
+    id("telegram-reporter")
+}
+
+tgReporter {
+    token.set(providers.environmentVariable("TG_TOKEN"))
+    chatId.set(providers.environmentVariable("TG_CHAT"))
 }
 
 android {
