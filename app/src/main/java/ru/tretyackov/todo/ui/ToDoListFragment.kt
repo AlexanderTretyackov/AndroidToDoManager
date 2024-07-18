@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -16,7 +17,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import ru.tretyackov.todo.R
+import ru.tretyackov.todo.data.THEME_MODE_KEY
 import ru.tretyackov.todo.data.TodoItem
+import ru.tretyackov.todo.data.dataStore
 import ru.tretyackov.todo.databinding.FragmentToDoListBinding
 import ru.tretyackov.todo.utilities.FactoryViewModel
 import ru.tretyackov.todo.utilities.getAppComponent
@@ -130,10 +133,16 @@ class ToDoListFragment : Fragment() {
                 choiceItems, checkedChoice
             ) { dialog, selectedModeIndex ->
                 dialog.cancel()
-                when (selectedModeIndex) {
-                    0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                val themeMode = when (selectedModeIndex) {
+                    0 -> AppCompatDelegate.MODE_NIGHT_NO
+                    1 -> AppCompatDelegate.MODE_NIGHT_YES
+                    2 -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                }
+                lifecycleScope.launch {
+                    requireContext().dataStore.edit { settings ->
+                        settings[THEME_MODE_KEY] = themeMode
+                    }
                 }
             }
         val dialog: AlertDialog = builder.create()

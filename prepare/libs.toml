@@ -10,6 +10,7 @@ junit = "4.3.2"
 espressoCore = "3.5.1"
 junitVersion = "1.1.5"
 ktor = "2.3.7"
+datastore = "1.1.1"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -28,6 +29,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", name="com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+androidx-datastore= { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 ktor-client = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
