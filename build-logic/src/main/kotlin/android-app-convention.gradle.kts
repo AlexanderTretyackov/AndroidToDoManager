@@ -47,4 +47,5 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
     kapt("com.google.dagger:dagger-compiler:2.51.1")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation(libs.androidx.datastore)
 }
