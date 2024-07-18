@@ -4,11 +4,14 @@ package ru.tretyackov.todo.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import ru.tretyackov.todo.R
 
 val blueColor = Color(0xFF007AFF)
 
+val primaryColor = Color(0x4D007AFF)
+
 val whiteColor = Color(0xFFFFFFFF)
-val blackColor = Color(0xFF000000)
 val blackSecondColor = Color(0xFF252528)
 
 val redColor = Color(0xFFFF3B30)

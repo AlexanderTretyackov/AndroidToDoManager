@@ -1,91 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/AppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/backgroundColor"
-            app:title="@string/my_todos"
-            app:expandedTitleMarginStart="60dp"
+            app:collapsedTitleTextAppearance="@style/TitleTextViewStyle"
             app:expandedTitleMarginBottom="44dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlways|snap">
-            <TextView android:id="@+id/textViewCompleted"
+            app:expandedTitleMarginStart="60dp"
+            app:expandedTitleTextAppearance="@style/LargeTitleTextViewStyle"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlways|snap"
+            app:title="@string/my_todos">
+
+            <TextView
+                android:id="@+id/textViewCompleted"
+                style="@style/BodyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="60dp"
                 android:layout_marginTop="160dp"
                 android:layout_marginBottom="16dp"
-                android:layout_marginStart="60dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="@string/my_todos"
-                android:textSize="16sp"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.4"
-                tools:text="Выполнено — 5"/>
-            <FrameLayout android:elevation="1dp"
+                tools:text="Выполнено — 5" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_collapseMode="pin"
-                android:paddingBottom="16dp"
-                android:paddingEnd="16dp"
-                android:layout_gravity="end|bottom">
-                <ImageButton
-                    android:id="@+id/showImageButton"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:text="@string/show"
-                    android:src="@drawable/show" />
-                <ImageButton
-                    android:id="@+id/hideImageButton"
-                    android:visibility="invisible"
-                    android:background="@color/backgroundColor"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:text="@string/hide"
-                    android:src="@drawable/hide" />
-            </FrameLayout>
-            <ProgressBar
-                android:id="@+id/loadingLayout"
-                android:visibility="gone"
-                android:scaleX="0.5"
-                android:scaleY="0.5"
-                android:elevation="1dp"
-                app:layout_collapseMode="pin"
-                android:paddingBottom="6dp"
-                android:paddingEnd="50dp"
                 android:layout_gravity="end|bottom"
                 android:layout_marginTop="16dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:elevation="1dp"
+                android:orientation="horizontal"
+                android:paddingEnd="16dp"
+                app:layout_collapseMode="pin">
+
+                <ProgressBar
+                    android:id="@+id/loadingLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleX="0.5"
+                    android:scaleY="0.5" />
+
+                <FrameLayout
+                    android:paddingBottom="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom">
+
+                    <ImageButton
+                        android:id="@+id/showImageButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/show"
+                        android:text="@string/show" />
+
+                    <ImageButton
+                        android:id="@+id/hideImageButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="@color/backgroundColor"
+                        android:src="@drawable/hide"
+                        android:text="@string/hide"
+                        android:visibility="invisible" />
+                </FrameLayout>
+            </LinearLayout>
+            <ImageButton
+                android:elevation="5dp"
+                android:id="@+id/settingsButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/settings"
+                app:layout_collapseMode="parallax"
+                app:tint="@color/defaultTextColor" />
+
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_collapseMode="pin"/>
+                app:layout_collapseMode="pin" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.recyclerview.widget.RecyclerView
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@+id/recyclerView"
-        android:elevation="5dp"
-        android:outlineProvider="bounds"
-        android:backgroundTint="@color/accentBackgroundColor"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/rounded_ui"
+        android:backgroundTint="@color/accentBackgroundColor"
+        android:elevation="5dp"
+        android:outlineProvider="bounds"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCompleted" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/createToDoButton"
         android:layout_width="wrap_content"
@@ -93,8 +120,8 @@
         android:layout_gravity="end|bottom"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
+        android:backgroundTint="#007AFF"
         android:contentDescription="@string/create_todo"
         android:src="@drawable/plus"
-        android:backgroundTint="#007AFF"
         app:tint="@color/white" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

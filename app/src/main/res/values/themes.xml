@@ -3,24 +3,15 @@
     <style name="Theme.ToDo.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@color/backgroundColor</item>
         <item name="colorAccent">@color/defaultTextColor</item>
-
-        <item name="android:textColor">@color/defaultTextColor</item>
-        <item name="android:textViewStyle">@style/customTextViewStyle</item>
+        <item name="android:textViewStyle">@style/BaseTextViewStyle</item>
         <item name="editTextStyle">@style/customEditTextStyle</item>
         <item name="android:datePickerDialogTheme">@style/customDatePickerStyle</item>
+
+        <item name="colorPrimary">@color/activeColor</item>
+        <item name="colorPrimaryVariant">@color/rippleActiveColor</item>
     </style>
 
     <style name="Theme.ToDo" parent="Theme.ToDo.Base">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
-        <item name="colorOnSurface">#CCCCCC</item>
-        <item name="colorSecondary">#34C759</item>
     </style>
 </resources>
