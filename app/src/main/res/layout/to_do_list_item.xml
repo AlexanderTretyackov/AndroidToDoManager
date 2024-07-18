@@ -26,9 +26,9 @@
 
     <TextView
         android:id="@+id/toDoNameTextView"
+        style="@style/BodyTextViewStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/barrierCheckboxAndImage"
@@ -60,11 +60,11 @@
 
     <TextView
         android:id="@+id/itemDeadlineTextView"
+        style="@style/SubheadTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="15 февраля 2024"
-        android:textSize="16sp"
-        android:textColor="#B3B3B3"
+        android:alpha="0.4"
         app:layout_constraintStart_toStartOf="@+id/toDoNameTextView"
         app:layout_constraintTop_toBottomOf="@+id/toDoNameTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

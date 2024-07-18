@@ -25,4 +25,9 @@
     <string name="loading_text">Идет загрузка, это будет быстро 😉</string>
     <string name="loading_error_text">Не удалось загрузить данные 😥</string>
     <string name="retry">Повторить</string>
+
+    <string name="theme_choosing">Выбор темы приложения</string>
+    <string name="day_theme">Светлая тема</string>
+    <string name="night_theme">Темная тема</string>
+    <string name="follow_system_theme">Как в системе</string>
 </resources>
