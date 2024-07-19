@@ -1,0 +1,153 @@
+{
+  "card": {
+    "variables": [
+      {
+        "name": "estimation",
+        "type": "string",
+        "value": "undefined"
+      },
+      {
+        "name": "dark_mode",
+        "type": "boolean",
+        "value": false
+      }
+    ],
+    "log_id": "divgram",
+    "states": [
+      {
+        "state_id": 0,
+        "div": {
+          "type": "container",
+          "content_alignment_horizontal": "center",
+          "margins": {
+            "top": 16,
+            "right": 16,
+            "left": 16,
+            "bottom": 16
+          },
+          "items": [
+            {
+              "type": "text",
+              "text": "Приложение было разработано в рамках прохождения Школы мобильной разработки летом 2024 года",
+              "text_color": "#@{dark_mode ? 'FFFFFF' : '000000'}",
+              "font_size": 16,
+              "margins": {
+                "bottom": 16
+              }
+            },
+            {
+              "type": "state",
+              "id": "estimationState",
+              "width": {
+                "type": "wrap_content"
+              },
+              "states": [
+                {
+                  "state_id": "undefined",
+                  "div": {
+                    "type": "container",
+                    "items": [
+                      {
+                        "type": "text",
+                        "text": "Оцените пожалуйста приложение",
+                        "text_color": "#@{dark_mode ? 'FFFFFF' : '000000'}",
+                        "font_weight": "bold",
+                        "font_size": 16,
+                        "margins": {
+                          "bottom": 16
+                        }
+                      },
+                      {
+                        "type": "container",
+                        "orientation": "horizontal",
+                        "content_alignment_horizontal": "center",
+                        "items": [
+                          {
+                            "type": "image",
+                            "image_url": "https://github.com/flattened-duck/divkit_summer_schools_2024/blob/main/img/heart.svg?raw=true",
+                            "width": {
+                              "type": "fixed",
+                              "value": 25,
+                              "unit": "dp"
+                            },
+                            "actions": [
+                              {
+                                "log_id": "estimate",
+                                "url": "div-action://set_state?state_id=0/estimationState/bad"
+                              }
+                            ],
+                            "margins": {
+                              "right": 8
+                            }
+                          },
+                          {
+                            "type": "image",
+                            "image_url": "https://github.com/flattened-duck/divkit_summer_schools_2024/blob/main/img/heart.svg?raw=true",
+                            "tint_color": "#f83939",
+                            "width": {
+                              "type": "fixed",
+                              "value": 25,
+                              "unit": "dp"
+                            },
+                            "actions": [
+                              {
+                                "log_id": "estimate",
+                                "url": "div-action://set_state?state_id=0/estimationState/good"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "state_id": "bad",
+                  "div": {
+                    "type": "image",
+                    "image_url": "https://github.com/flattened-duck/divkit_summer_schools_2024/blob/main/img/heart.svg?raw=true",
+                    "width": {
+                      "type": "fixed",
+                      "value": 25,
+                      "unit": "dp"
+                    }
+                  }
+                },
+                {
+                  "state_id": "good",
+                  "div": {
+                    "type": "image",
+                    "image_url": "https://github.com/flattened-duck/divkit_summer_schools_2024/blob/main/img/heart.svg?raw=true",
+                    "tint_color": "#f83939",
+                    "tint_mode": "multiply",
+                    "width": {
+                      "type": "fixed",
+                      "value": 25,
+                      "unit": "dp"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "👈 К задачам",
+              "text_color": "#@{dark_mode ? 'FFFFFF' : '000000'}",
+              "font_size": 14,
+              "margins": {
+                "top": 32,
+                "left": 16
+              },
+              "actions": [
+                {
+                  "log_id": "open_todo_list",
+                  "url": "open://screen?id=todo_list"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

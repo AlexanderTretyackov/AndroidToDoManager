@@ -83,6 +83,9 @@ class ToDoListFragment : Fragment() {
                 }
             }
         }
+        binding.btnAboutApp.setOnClickListener{
+            openAboutApp()
+        }
         binding.settingsButton.setOnClickListener {
             showThemeSettings()
         }
@@ -147,6 +150,21 @@ class ToDoListFragment : Fragment() {
             }
         val dialog: AlertDialog = builder.create()
         dialog.show()
+    }
+
+    private fun openAboutApp() {
+        if (parentFragmentManager.fragments.any { fragment -> fragment is AboutAppFragment }) {
+            return
+        }
+        parentFragmentManager.commit {
+            setCustomAnimations(R.anim.slide_in, 0, 0, R.anim.slide_out)
+            add(
+                R.id.fragment_container_view,
+                AboutAppFragment()
+            )
+            setReorderingAllowed(true)
+            addToBackStack(null)
+        }
     }
 
     private fun openToDo(todoItem: TodoItem?) {

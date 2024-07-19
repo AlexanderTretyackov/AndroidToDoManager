@@ -11,11 +11,17 @@ espressoCore = "3.5.1"
 junitVersion = "1.1.5"
 ktor = "2.3.7"
 datastore = "1.1.1"
+divkit = "30.9.0"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-kapt-gradle-plugin = { group = "org.jetbrains.kotlin.kapt", name = "org.jetbrains.kotlin.kapt.gradle.plugin", version.ref = "kotlin" }
+
+yandex-div = { group = "com.yandex.div", name = "div", version.ref = "divkit" }
+yandex-div-core = { group = "com.yandex.div", name = "div-core", version.ref = "divkit" }
+yandex-div-json = { group = "com.yandex.div", name = "div-json", version.ref = "divkit" }
+yandex-div-picasso = { group = "com.yandex.div", name = "picasso", version.ref = "divkit" }
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

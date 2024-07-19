@@ -52,10 +52,10 @@
                     android:scaleY="0.5" />
 
                 <FrameLayout
-                    android:paddingBottom="16dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom">
+                    android:layout_gravity="bottom"
+                    android:paddingBottom="16dp">
 
                     <ImageButton
                         android:id="@+id/showImageButton"
@@ -74,8 +74,8 @@
                         android:visibility="invisible" />
                 </FrameLayout>
             </LinearLayout>
+
             <ImageButton
-                android:elevation="5dp"
                 android:id="@+id/settingsButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -83,10 +83,21 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:background="@android:color/transparent"
+                android:elevation="5dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/settings"
                 app:layout_collapseMode="parallax"
                 app:tint="@color/defaultTextColor" />
+
+            <Button
+                android:id="@+id/btn_about_app"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/about_app"
+                android:textAllCaps="false"
+                app:layout_collapseMode="parallax" />
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"

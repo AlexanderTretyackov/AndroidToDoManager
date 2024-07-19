@@ -48,4 +48,8 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:2.51.1")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation(libs.androidx.datastore)
+    implementation(libs.yandex.div)
+    implementation(libs.yandex.div.core)
+    implementation(libs.yandex.div.json)
+    implementation(libs.yandex.div.picasso)
 }
