@@ -30,4 +30,6 @@
     <string name="day_theme">Светлая тема</string>
     <string name="night_theme">Темная тема</string>
     <string name="follow_system_theme">Как в системе</string>
+
+    <string name="about_app">О приложении</string>
 </resources>
