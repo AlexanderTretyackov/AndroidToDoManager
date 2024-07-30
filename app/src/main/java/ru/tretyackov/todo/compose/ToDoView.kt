@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -145,7 +146,8 @@ fun ToDoView(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
                                     .padding(16.dp)
                                     .height(24.dp)
                                     .width(24.dp))
-                            TextButton(onClick = vm::saveToDo, modifier = Modifier.padding(16.dp)) {
+                            TextButton(onClick = vm::saveToDo, modifier = Modifier
+                                .testTag("save_button").padding(16.dp)) {
                                 Text(stringResource(id = R.string.save), color = blueColor)
                             }
                         }
@@ -158,6 +160,7 @@ fun ToDoView(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
                         ) {
                             TextField(value = text, onValueChange = vm::updateText,
                                 Modifier
+                                    .testTag("todo_text")
                                     .height(IntrinsicSize.Min)
                                     .padding(start = 16.dp, end = 16.dp)
                                     .fillMaxWidth()

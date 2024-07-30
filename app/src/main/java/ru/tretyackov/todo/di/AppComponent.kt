@@ -6,9 +6,9 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
 import dagger.Subcomponent
-import ru.tretyackov.todo.data.network.ApiModule
 import ru.tretyackov.todo.data.TodoItemsRepository
 import ru.tretyackov.todo.data.database.DatabaseModule
+import ru.tretyackov.todo.data.network.ApiModule
 import ru.tretyackov.todo.utilities.ConnectivityMonitor
 import ru.tretyackov.todo.utilities.IConnectivityMonitor
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
@@ -18,28 +18,30 @@ import javax.inject.Singleton
 @Component(modules = [ApiModule::class, DatabaseModule::class, ConnectivityModule::class, SubcomponentsModule::class])
 @Singleton
 interface AppComponent {
-    fun todoItemsRepository() : TodoItemsRepository
+    fun todoItemsRepository(): TodoItemsRepository
     fun toDoListViewModel(): ToDoListViewModel
     fun toDoComponent(): ToDoComponent.Factory
+
     @Component.Factory
-    interface AppComponentFactory{
-        fun create(@BindsInstance context: Context) : AppComponent
+    interface AppComponentFactory {
+        fun create(@BindsInstance context: Context): AppComponent
     }
 }
 
 @Module
-interface ConnectivityModule{
+interface ConnectivityModule {
     @Singleton
     @Binds
-    fun bindConnectivityMonitor(impl : ConnectivityMonitor): IConnectivityMonitor
+    fun bindConnectivityMonitor(impl: ConnectivityMonitor): IConnectivityMonitor
 }
 
 @Module(subcomponents = [ToDoComponent::class])
 class SubcomponentsModule {}
 
 @Subcomponent
-interface ToDoComponent{
+interface ToDoComponent {
     fun toDoViewModelFactory(): ToDoViewModel.Factory
+
     @Subcomponent.Factory
     interface Factory {
         fun create(): ToDoComponent

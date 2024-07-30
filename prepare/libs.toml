@@ -6,12 +6,12 @@ room = "2.6.1"
 coreKtx = "1.7.0"
 appcompat = "1.6.1"
 material = "1.11.0"
-junit = "4.3.2"
-espressoCore = "3.5.1"
-junitVersion = "1.1.5"
+junit = "4.13.2"
 ktor = "2.3.7"
 datastore = "1.1.1"
 divkit = "30.9.0"
+mockk = "1.13.12"
+mockwebserver = "4.12.0"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -31,8 +31,11 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref="mockwebserver" }
+androidx-junit = { group = "androidx.test.ext", name = "junit" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core" }
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", name="com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 androidx-datastore= { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }

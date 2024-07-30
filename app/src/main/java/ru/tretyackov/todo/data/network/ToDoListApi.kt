@@ -16,6 +16,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import ru.tretyackov.todo.BuildConfig
 import ru.tretyackov.todo.data.network.dto.CreateToDoItemDto
 import ru.tretyackov.todo.data.network.dto.OperatedToDoItemDto
 import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
@@ -28,18 +29,33 @@ const val token = "ÒÎÊÅÍ"
 
 interface ToDoListApi {
     @GET("list")
-    suspend fun getToDoList() : ToDoListDto
+    suspend fun getToDoList(): ToDoListDto
+
     @POST("list")
-    suspend fun add(@Header("X-Last-Known-Revision") revision: Int,
-                    @Query("id") id: String,
-                    @Body createToDoItemDto: CreateToDoItemDto
-    ) : OperatedToDoItemDto
+    suspend fun add(
+        @Header("X-Last-Known-Revision") revision: Int,
+        @Query("id") id: String,
+        @Body createToDoItemDto: CreateToDoItemDto
+    ): OperatedToDoItemDto
+
     @PUT("list/{id}")
-    suspend fun update(@Header("X-Last-Known-Revision") revision: Int, @Path("id") id: String, @Body updateToDoItemDto: UpdateToDoItemDto) : OperatedToDoItemDto
+    suspend fun update(
+        @Header("X-Last-Known-Revision") revision: Int,
+        @Path("id") id: String,
+        @Body updateToDoItemDto: UpdateToDoItemDto
+    ): OperatedToDoItemDto
+
     @DELETE("list/{id}")
-    suspend fun delete(@Header("X-Last-Known-Revision") revision: Int, @Path("id") id: String) : OperatedToDoItemDto
+    suspend fun delete(
+        @Header("X-Last-Known-Revision") revision: Int,
+        @Path("id") id: String
+    ): OperatedToDoItemDto
+
     @PATCH("list")
-    suspend fun patch(@Header("X-Last-Known-Revision") revision: Int, @Body patchToDoListDto : PatchToDoListDto) : ToDoListDto
+    suspend fun patch(
+        @Header("X-Last-Known-Revision") revision: Int,
+        @Body patchToDoListDto: PatchToDoListDto
+    ): ToDoListDto
 }
 
 class AuthInterceptor : Interceptor {
@@ -56,8 +72,7 @@ class RetryInterceptor : Interceptor {
         val request = chain.request()
         var retryCount = 3
         var response = chain.proceed(request)
-        while(!response.isSuccessful && retryCount > 0)
-        {
+        while (!response.isSuccessful && retryCount > 0) {
             response.close()
             response = chain.proceed(request)
             retryCount--
@@ -67,12 +82,11 @@ class RetryInterceptor : Interceptor {
 }
 
 @Module
-object ApiModule{
+object ApiModule {
     @Singleton
     @Provides
     fun provideApi(): ToDoListApi = createApi()
-    private fun createApi() : ToDoListApi {
-        val BASE_URL = "https://hive.mrdekk.ru/todo/"
+    private fun createApi(): ToDoListApi {
         val client = OkHttpClient().newBuilder()
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
@@ -80,7 +94,7 @@ object ApiModule{
             .addInterceptor(RetryInterceptor())
             .addInterceptor(AuthInterceptor())
             .build()
-        return Retrofit.Builder().baseUrl(BASE_URL)
+        return Retrofit.Builder().baseUrl(BuildConfig.SERVER_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

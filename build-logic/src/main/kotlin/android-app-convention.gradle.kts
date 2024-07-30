@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.material)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.google.dagger:dagger:2.51.1")
@@ -52,4 +53,6 @@ dependencies {
     implementation(libs.yandex.div.core)
     implementation(libs.yandex.div.json)
     implementation(libs.yandex.div.picasso)
+    implementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.mockwebserver)
 }
