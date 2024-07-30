@@ -12,12 +12,12 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
-interface IConnectivityMonitor{
+interface ConnectivityMonitor{
     val isAvailableFlow: Flow<Boolean>
 }
 
 @Singleton
-class ConnectivityMonitor @Inject constructor(ctx: Context) : IConnectivityMonitor {
+class ConnectivityMonitorImpl @Inject constructor(ctx: Context) : ConnectivityMonitor {
     override val isAvailableFlow = MutableStateFlow(false)
     private val networkRequest: NetworkRequest = NetworkRequest.Builder()
         .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)

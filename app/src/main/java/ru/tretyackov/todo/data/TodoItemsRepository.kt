@@ -2,7 +2,6 @@ package ru.tretyackov.todo.data
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +22,7 @@ import ru.tretyackov.todo.data.network.dto.ToDoItemDto
 import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
 import ru.tretyackov.todo.data.network.dto.toModel
 import ru.tretyackov.todo.utilities.DateHelper
-import ru.tretyackov.todo.utilities.IConnectivityMonitor
+import ru.tretyackov.todo.utilities.ConnectivityMonitor
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -40,7 +39,7 @@ private const val SERVER_UNSYNCHRONIZED_DATA_ERROR = "unsynchronized data"
 @Singleton
 class TodoItemsRepository @Inject constructor(
     private val toDoApi: ToDoListApi,
-    private val connectivityMonitor: IConnectivityMonitor,
+    private val connectivityMonitor: ConnectivityMonitor,
     private val todoDao: TodoDao
 ) {
     private var revision: Int = 0

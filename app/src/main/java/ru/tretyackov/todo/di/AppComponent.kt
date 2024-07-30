@@ -9,8 +9,8 @@ import dagger.Subcomponent
 import ru.tretyackov.todo.data.TodoItemsRepository
 import ru.tretyackov.todo.data.database.DatabaseModule
 import ru.tretyackov.todo.data.network.ApiModule
+import ru.tretyackov.todo.utilities.ConnectivityMonitorImpl
 import ru.tretyackov.todo.utilities.ConnectivityMonitor
-import ru.tretyackov.todo.utilities.IConnectivityMonitor
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 import ru.tretyackov.todo.viewmodels.ToDoViewModel
 import javax.inject.Singleton
@@ -32,7 +32,7 @@ interface AppComponent {
 interface ConnectivityModule {
     @Singleton
     @Binds
-    fun bindConnectivityMonitor(impl: ConnectivityMonitor): IConnectivityMonitor
+    fun bindConnectivityMonitor(impl: ConnectivityMonitorImpl): ConnectivityMonitor
 }
 
 @Module(subcomponents = [ToDoComponent::class])
