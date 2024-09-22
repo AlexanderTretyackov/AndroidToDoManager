@@ -76,6 +76,7 @@ class ToDoListViewModel @Inject constructor(private val todoItemsRepository: Tod
 
     fun onSwitchToDoCompleted(toDo: TodoItem) {
         val newToDo = toDo.copy()
+        newToDo.completed = !newToDo.completed
         _completedCountState.update { _completedCountState.value + if (toDo.completed) 1 else -1 }
         _toDoListFilteredState.update {
             getFilterToDos(

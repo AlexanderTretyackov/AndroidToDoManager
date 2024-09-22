@@ -24,11 +24,14 @@ fun TextView.updateCompleteStyle(isCompleted: Boolean)
 class ToDoViewHolder(binding: ToDoListItemBinding, private val onClick : (TodoItem)->Unit,
                      private val onCheck : (TodoItem)->Unit) : RecyclerView.ViewHolder(binding.root)
 {
+    private var _todoItem : TodoItem? = null
+    val toDoItem : TodoItem? get() = _todoItem
     private val textView = binding.toDoNameTextView
     private val checkBox = binding.checkBoxCompleted
     private val priorityImageView = binding.priorityImageView
     private val itemDeadlineTextView = binding.itemDeadlineTextView
     fun onBind(todo: TodoItem){
+        _todoItem=todo
         textView.text = todo.name
         checkBox.isChecked = todo.completed
         textView.updateCompleteStyle(todo.completed)
@@ -41,8 +44,6 @@ class ToDoViewHolder(binding: ToDoListItemBinding, private val onClick : (TodoIt
         itemDeadlineTextView.visibility = if(todo.deadline != null) View.VISIBLE else View.GONE
         itemDeadlineTextView.text = todo.deadline?.toFormattedString()
         checkBox.setOnClickListener{
-            todo.completed = !todo.completed
-            textView.updateCompleteStyle(todo.completed)
             onCheck(todo)
         }
         itemView.setOnClickListener {

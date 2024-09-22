@@ -26,6 +26,9 @@ import ru.tretyackov.todo.utilities.getAppComponent
 import ru.tretyackov.todo.viewmodels.DataState
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 
+private const val TOP_BOTTOM_ITEM_PADDING_DP = 12
+private const val START_END_ITEM_PADDING_DP = 16
+
 class ToDoListFragment : Fragment() {
     private lateinit var toDoAdapter: ToDoAdapter
     private lateinit var binding: FragmentToDoListBinding
@@ -83,20 +86,19 @@ class ToDoListFragment : Fragment() {
                 }
             }
         }
-        binding.btnAboutApp.setOnClickListener{
+        binding.btnAboutApp.setOnClickListener {
             openAboutApp()
         }
         binding.settingsButton.setOnClickListener {
             showThemeSettings()
         }
         recyclerView.adapter = toDoAdapter
-        val density = requireContext().resources.displayMetrics.density
-        recyclerView.addItemDecoration(
-            ToDoItemDecoration(
-                (16 * density).toInt(), (12 * density).toInt(),
-                (16 * density).toInt(), (12 * density).toInt()
-            )
-        )
+        ToDoItemDecoration(
+            requireContext(),
+            vm::onSwitchToDoCompleted,
+            TOP_BOTTOM_ITEM_PADDING_DP,
+            START_END_ITEM_PADDING_DP,
+        ).attachToRecyclerView(recyclerView)
         recyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val addToDoButton = binding.createToDoButton
