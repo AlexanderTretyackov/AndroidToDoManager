@@ -27,10 +27,14 @@ fun AppTheme(content: @Composable () -> Unit) {
             darkColorScheme(
                 primary = primaryColor,
                 onPrimary = blueColor,
+                surface = Color(0xFF161618),
+                onSurface = Color.White,
             )
         } else lightColorScheme(
             primary = blueColor,
             onPrimary = blueColor,
+            surface = Color(0xFFF7F6F2),
+            onSurface = Color.Black,
         ), content = {
             ProvideTextStyle(
                 value = TextStyle(color = colorResource(id = R.color.defaultTextColor)),

@@ -4,7 +4,6 @@
         <item name="android:statusBarColor">@color/backgroundColor</item>
         <item name="colorAccent">@color/defaultTextColor</item>
         <item name="android:textViewStyle">@style/BaseTextViewStyle</item>
-        <item name="editTextStyle">@style/customEditTextStyle</item>
         <item name="android:datePickerDialogTheme">@style/customDatePickerStyle</item>
 
         <item name="colorPrimary">@color/activeColor</item>

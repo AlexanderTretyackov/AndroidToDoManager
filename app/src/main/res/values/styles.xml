@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="customEditTextStyle" parent="Widget.MaterialComponents.TextInputEditText.FilledBox">
-        <item name="android:backgroundTint">@color/accentBackgroundColor</item>
-        <item name="android:textColorHint">@color/defaultTextColor</item>
-    </style>
-
-    <style name="customButtonBarButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <style name="customButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/buttonDatePickerColor</item>
         <item name="rippleColor">@color/rippleActiveColor</item>
     </style>
@@ -13,7 +8,7 @@
     <style name="customDatePickerStyle" parent="ThemeOverlay.MaterialComponents.Dialog">
         <item name="android:windowBackground">@color/datePickerBackgroundColor</item>
         <item name="colorAccent">@color/datePickerAccentColor</item>
-        <item name="android:buttonBarNegativeButtonStyle">@style/customButtonBarButtonStyle</item>
-        <item name="android:buttonBarPositiveButtonStyle">@style/customButtonBarButtonStyle</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/customButtonStyle</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/customButtonStyle</item>
     </style>
 </resources>
