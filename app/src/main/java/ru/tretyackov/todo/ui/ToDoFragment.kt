@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import ru.tretyackov.todo.R
-import ru.tretyackov.todo.compose.ToDoView
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.utilities.getAppComponent
@@ -70,7 +69,7 @@ class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
         }
         return ComposeView(requireContext()).apply {
             setContent {
-                ToDoView(vm,datePickerDialogImpl)
+                ToDoComponent(vm,datePickerDialogImpl)
             }
         }
     }

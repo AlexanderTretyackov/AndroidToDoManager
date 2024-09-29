@@ -1,4 +1,4 @@
-package ru.tretyackov.todo.compose
+package ru.tretyackov.todo.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -61,7 +61,6 @@ import ru.tretyackov.todo.theme.dropDownItemMenuColor
 import ru.tretyackov.todo.theme.redColor
 import ru.tretyackov.todo.theme.textFieldBackgroundColor
 import ru.tretyackov.todo.theme.textFieldTextColor
-import ru.tretyackov.todo.ui.IDatePickerDialog
 import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.viewmodels.IToDoViewModel
 import ru.tretyackov.todo.viewmodels.ToDoUpdateError
@@ -98,7 +97,7 @@ fun ToDoViewPreview() {
         override fun show() {}
         override fun setDate(date: Date) {}
     }
-    ToDoView(vm = mockViewModel, datePickerDialog = mockDatePickerDialog)
+    ToDoComponent(vm = mockViewModel, datePickerDialog = mockDatePickerDialog)
 }
 
 @Composable
@@ -130,7 +129,7 @@ private fun TopBar(goBack: () -> Unit, saveToDo: () -> Unit) {
 }
 
 @Composable
-private fun LoadingView() {
+private fun LoadingComponent() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -143,7 +142,7 @@ private fun LoadingView() {
 }
 
 @Composable
-private fun PriorityView(
+private fun PriorityComponent(
     priorityState: State<ToDoPriority>,
     updatePriority: (ToDoPriority) -> Unit
 ) {
@@ -208,7 +207,7 @@ private fun PriorityView(
 }
 
 @Composable
-private fun DeadlineView(
+private fun DeadlineComponent(
     isDeadlineState: State<Boolean>,
     deadlineDateState: State<Date>,
     updateIsDeadline: (Boolean) -> Unit,
@@ -248,7 +247,7 @@ private fun DeadlineView(
 }
 
 @Composable
-private fun DeleteView(deletableState: State<Boolean>, delete: () -> Unit) {
+private fun DeleteComponent(deletableState: State<Boolean>, delete: () -> Unit) {
     val deletable by deletableState
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -281,7 +280,7 @@ private fun DeleteView(deletableState: State<Boolean>, delete: () -> Unit) {
 }
 
 @Composable
-fun ToDoView(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
+fun ToDoComponent(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
     val text by vm.textState.collectAsState()
     val priorityState = vm.priorityState.collectAsState()
     val deletableState = vm.deletableState.collectAsState()
@@ -292,7 +291,7 @@ fun ToDoView(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
         Surface {
             Box(contentAlignment = Alignment.Center) {
                 if (isLoading)
-                    LoadingView()
+                    LoadingComponent()
                 else
                     Scaffold(modifier = Modifier.background(backgroundColor), topBar = {
                         TopBar(vm::goBack, vm::saveToDo)
@@ -325,19 +324,19 @@ fun ToDoView(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
                                     )
                                 })
                             Column(Modifier.padding(start = 16.dp, end = 16.dp)) {
-                                PriorityView(
+                                PriorityComponent(
                                     priorityState = priorityState,
                                     updatePriority = vm::updatePriority
                                 )
                                 HorizontalDivider()
-                                DeadlineView(
+                                DeadlineComponent(
                                     isDeadlineState = isDeadlineState,
                                     deadlineDateState = deadlineDateState,
                                     updateIsDeadline = vm::updateIsDeadline,
                                     datePickerDialog = datePickerDialog,
                                 )
                                 HorizontalDivider()
-                                DeleteView(deletableState = deletableState, delete = vm::deleteToDo)
+                                DeleteComponent(deletableState = deletableState, delete = vm::deleteToDo)
                             }
                         }
                     }
