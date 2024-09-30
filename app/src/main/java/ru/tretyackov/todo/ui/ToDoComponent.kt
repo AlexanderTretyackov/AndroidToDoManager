@@ -1,6 +1,7 @@
 package ru.tretyackov.todo.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,6 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import ru.tretyackov.todo.R
@@ -101,29 +103,33 @@ fun ToDoViewPreview() {
 }
 
 @Composable
-private fun TopBar(goBack: () -> Unit, saveToDo: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
+private fun TopBar(scrollState: ScrollState, goBack: () -> Unit, saveToDo: () -> Unit) {
+    Surface(
+        shadowElevation = min(15.dp, scrollState.value.dp / 15),
     ) {
-        Image(painter = painterResource(id = R.drawable.close),
-            contentDescription = stringResource(id = R.string.close_content_description),
-            Modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }) {
-                    goBack()
-                }
-                .padding(16.dp)
-                .height(24.dp)
-                .width(24.dp))
-        TextButton(
-            onClick = saveToDo, modifier = Modifier
-                .testTag("save_button")
-                .padding(16.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(stringResource(id = R.string.save), color = blueColor)
+            Image(painter = painterResource(id = R.drawable.close),
+                contentDescription = stringResource(id = R.string.close_content_description),
+                Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }) {
+                        goBack()
+                    }
+                    .padding(16.dp)
+                    .height(24.dp)
+                    .width(24.dp))
+            TextButton(
+                onClick = saveToDo, modifier = Modifier
+                    .testTag("save_button")
+                    .padding(16.dp)
+            ) {
+                Text(stringResource(id = R.string.save), color = blueColor)
+            }
         }
     }
 }
@@ -290,16 +296,17 @@ fun ToDoComponent(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
     AppTheme {
         Surface {
             Box(contentAlignment = Alignment.Center) {
+                val scrollState = rememberScrollState()
                 if (isLoading)
                     LoadingComponent()
                 else
                     Scaffold(modifier = Modifier.background(backgroundColor), topBar = {
-                        TopBar(vm::goBack, vm::saveToDo)
+                        TopBar(scrollState, vm::goBack, vm::saveToDo)
                     }, containerColor = backgroundColor) { padding ->
                         Column(
                             modifier = Modifier
                                 .padding(padding)
-                                .verticalScroll(rememberScrollState())
+                                .verticalScroll(scrollState)
                         ) {
                             TextField(value = text, onValueChange = vm::updateText,
                                 Modifier
@@ -336,7 +343,10 @@ fun ToDoComponent(vm: IToDoViewModel, datePickerDialog: IDatePickerDialog) {
                                     datePickerDialog = datePickerDialog,
                                 )
                                 HorizontalDivider()
-                                DeleteComponent(deletableState = deletableState, delete = vm::deleteToDo)
+                                DeleteComponent(
+                                    deletableState = deletableState,
+                                    delete = vm::deleteToDo
+                                )
                             }
                         }
                     }
