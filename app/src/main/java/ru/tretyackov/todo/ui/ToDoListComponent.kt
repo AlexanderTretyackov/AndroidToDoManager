@@ -1,5 +1,7 @@
 package ru.tretyackov.todo.ui
 
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,14 +31,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -136,12 +145,109 @@ private fun ToDoListItem(toDo: TodoItem, onSwitchToDoCompleted: () -> Unit, onCl
 }
 
 @Composable
+private fun CompleteFilterButton(
+    showWithCompleted: State<Boolean>,
+    changeShowWithCompleted: () -> Unit,
+    modifier: Modifier,
+) {
+    val calculateAlphaShow: (Boolean) -> Float =
+        { showWithCompletedValue -> if (showWithCompletedValue) 0f else 1f }
+    val calculateAlphaHide: (Boolean) -> Float =
+        { showWithCompletedValue -> if (showWithCompletedValue) 1f else 0f }
+    var alphaHide by remember { mutableFloatStateOf(calculateAlphaHide(showWithCompleted.value)) }
+    var alphaShow by remember { mutableFloatStateOf(calculateAlphaShow(showWithCompleted.value)) }
+    Box(modifier = modifier
+        .clip(CircleShape)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = rememberRipple(color = blueColor),
+        ) {
+            changeShowWithCompleted()
+        }) {
+        Image(
+            painter = painterResource(id = R.drawable.hide),
+            contentDescription = stringResource(id = R.string.close_content_description),
+            modifier = Modifier
+                .padding(12.dp)
+                .height(24.dp)
+                .width(24.dp)
+                .graphicsLayer {
+                    alpha = alphaHide
+                },
+        )
+        Image(
+            painter = painterResource(id = R.drawable.show),
+            contentDescription = stringResource(id = R.string.close_content_description),
+            modifier = Modifier
+                .padding(12.dp)
+                .height(24.dp)
+                .width(24.dp)
+                .graphicsLayer {
+                    alpha = alphaShow
+                },
+        )
+        val animationDurationMillis = 150
+        val alphaSwap = 0.3f
+        LaunchedEffect(showWithCompleted.value) {
+            if (alphaShow != 1f && alphaHide != 1f) {
+                alphaShow = calculateAlphaShow(showWithCompleted.value)
+                alphaHide = calculateAlphaHide(showWithCompleted.value)
+                return@LaunchedEffect
+            }
+            if (alphaShow == calculateAlphaShow(showWithCompleted.value) &&
+                alphaHide == calculateAlphaHide(showWithCompleted.value)
+            )
+                return@LaunchedEffect
+            if (showWithCompleted.value) {
+                animate(
+                    1f,
+                    alphaSwap,
+                    animationSpec = tween(durationMillis = animationDurationMillis),
+                )
+                { value, _ ->
+                    alphaShow = value
+                }
+                alphaHide = alphaSwap
+                alphaShow = 0f
+                animate(
+                    alphaSwap,
+                    1f,
+                    animationSpec = tween(durationMillis = animationDurationMillis),
+                )
+                { value, _ ->
+                    alphaHide = value
+                }
+            } else {
+                animate(
+                    1f,
+                    alphaSwap,
+                    animationSpec = tween(durationMillis = animationDurationMillis),
+                )
+                { value, _ ->
+                    alphaHide = value
+                }
+                alphaShow = alphaSwap
+                alphaHide = 0f
+                animate(
+                    alphaSwap,
+                    1f,
+                    animationSpec = tween(durationMillis = animationDurationMillis),
+                )
+                { value, _ ->
+                    alphaShow = value
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun TopBar(
     vm: ToDoListViewModel,
     openAboutApp: () -> Unit,
     openSettings: () -> Unit,
 ) {
-    val showWithCompleted by vm.showWithCompletedState.collectAsState()
+    val showWithCompleted = vm.showWithCompletedState.collectAsState()
     val isLoading = vm.dataState.collectAsState().value == DataState.Loading
     val completedCount by vm.completedCountState.collectAsState()
     Column(
@@ -205,19 +311,13 @@ private fun TopBar(
                 Text(text = stringResource(id = R.string.completed, completedCount))
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            Image(painter = painterResource(id = if (showWithCompleted) R.drawable.hide else R.drawable.show),
-                contentDescription = stringResource(id = R.string.close_content_description),
+            CompleteFilterButton(
+                showWithCompleted = showWithCompleted,
+                changeShowWithCompleted = { vm.filter(!showWithCompleted.value) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(bottom = 4.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }) {
-                        vm.filter(!showWithCompleted)
-                    }
-                    .padding(12.dp)
-                    .height(24.dp)
-                    .width(24.dp))
+            )
         }
     }
 }
