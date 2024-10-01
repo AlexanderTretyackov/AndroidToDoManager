@@ -2,12 +2,12 @@ package ru.tretyackov.todo.data
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import ru.tretyackov.todo.data.database.TodoCachedOperationType
@@ -21,8 +21,8 @@ import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
 import ru.tretyackov.todo.data.network.dto.ToDoItemDto
 import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
 import ru.tretyackov.todo.data.network.dto.toModel
-import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.utilities.ConnectivityMonitor
+import ru.tretyackov.todo.utilities.DateHelper
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -43,7 +43,7 @@ class TodoItemsRepository @Inject constructor(
     private val todoDao: TodoDao
 ) {
     private var revision: Int = 0
-    private val context = newSingleThreadContext("CounterContext")
+    private val context = Dispatchers.IO
     private val _todosState = MutableStateFlow<List<TodoItem>>(listOf())
     private val _refreshState = MutableStateFlow(RefreshState.CachedLoading)
     val refreshState = _refreshState.asStateFlow()
