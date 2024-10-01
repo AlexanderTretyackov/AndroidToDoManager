@@ -50,22 +50,16 @@ class TodoItemsRepository @Inject constructor(
 
     init {
         CoroutineScope(context).launch {
-            withContext(context)
-            {
-                _refreshState.update { RefreshState.CachedLoading }
-                todoDao.getAllExceptDeletedFlow().collect { newDatabaseList ->
-                    _todosState.update { newDatabaseList.map { toDoItemEntity -> toDoItemEntity.toModel() } }
-                }
+            _refreshState.update { RefreshState.CachedLoading }
+            todoDao.getAllExceptDeletedFlow().collect { newDatabaseList ->
+                _todosState.update { newDatabaseList.map { toDoItemEntity -> toDoItemEntity.toModel() } }
             }
         }
         CoroutineScope(context).launch {
-            withContext(context)
-            {
-                connectivityMonitor.isAvailableFlow.collect { isAvailable ->
-                    if (isAvailable && refreshState.value != RefreshState.CachedLoading) {
-                        Log.i("TodoItemsRepository", "connectivityMonitor")
-                        refresh()
-                    }
+            connectivityMonitor.isAvailableFlow.collect { isAvailable ->
+                if (isAvailable && refreshState.value != RefreshState.CachedLoading) {
+                    Log.i("TodoItemsRepository", "connectivityMonitor")
+                    refresh()
                 }
             }
         }
@@ -167,8 +161,7 @@ class TodoItemsRepository @Inject constructor(
             } catch (ex: HttpException) {
                 val errorString = ex.response()?.errorBody()?.string()
                 if (ex.code() == 400 && errorString == SERVER_UNSYNCHRONIZED_DATA_ERROR) {
-                    if (count == 1)
-                    {
+                    if (count == 1) {
                         throw ex
                     }
                     refreshList()
@@ -192,10 +185,12 @@ class TodoItemsRepository @Inject constructor(
                     Log.i("handle", "UnknownHostException")
                     DataResult.Error.NetworkError("Error")
                 }
+
                 is HttpException -> {
                     Log.i("handle", "HttpException $ex")
                     DataResult.Error.AnotherError("Error")
                 }
+
                 else -> {
                     Log.i("handle", "another $ex")
                     DataResult.Error.AnotherError("Error")
