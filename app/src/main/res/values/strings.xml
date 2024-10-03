@@ -31,5 +31,11 @@
     <string name="night_theme">Темная тема</string>
     <string name="follow_system_theme">Как в системе</string>
 
+    <string name="application_login">Вход в приложение</string>
+    <string name="login_by_yandex_id">Войти с Яндекс ID</string>
+    <string name="yandex_login_failure">Не удалось войти через Яндекс ID, попробуйте позже</string>
+    <string name="yandex_login_cancelled">Вход через Яндекс ID отменен</string>
+    <string name="yandex_login_success">Успешных вход через Яндекс ID</string>
+
     <string name="about_app">О приложении</string>
 </resources>

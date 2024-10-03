@@ -2,6 +2,7 @@ package ru.tretyackov.todo.data.network
 
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -16,7 +17,10 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import ru.tretyackov.todo.App
 import ru.tretyackov.todo.BuildConfig
+import ru.tretyackov.todo.data.exceptions.InvalidOAuthTokenException
+import ru.tretyackov.todo.data.getYandexAuthToken
 import ru.tretyackov.todo.data.network.dto.CreateToDoItemDto
 import ru.tretyackov.todo.data.network.dto.OperatedToDoItemDto
 import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
@@ -24,8 +28,6 @@ import ru.tretyackov.todo.data.network.dto.ToDoListDto
 import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-
-const val token = "“Œ ≈Õ"
 
 interface ToDoListApi {
     @GET("list")
@@ -60,8 +62,11 @@ interface ToDoListApi {
 
 class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
+        val token = runBlocking { App.instance.getYandexAuthToken() }
+        if (token == null)
+            throw InvalidOAuthTokenException()
         val request = chain.request().newBuilder()
-            .header("Authorization", "Bearer $token")
+            .header("Authorization", "OAuth ${token.value}")
             .build()
         return chain.proceed(request)
     }

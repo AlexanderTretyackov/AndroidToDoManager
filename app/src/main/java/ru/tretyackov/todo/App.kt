@@ -18,9 +18,14 @@ import ru.tretyackov.todo.utilities.SyncToDoListWorker
 import java.util.concurrent.TimeUnit
 
 class App : Application() {
+    companion object {
+        lateinit var instance: App
+            private set
+    }
     val appComponent = DaggerAppComponent.factory().create(this)
     override fun onCreate() {
         super.onCreate()
+        instance = this
         runBlocking {
             val preferences = this@App.dataStore.data.first()
             updateThemeFromPreferences(preferences)

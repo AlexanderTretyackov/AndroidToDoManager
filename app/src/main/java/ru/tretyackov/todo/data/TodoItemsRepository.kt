@@ -175,6 +175,7 @@ class TodoItemsRepository @Inject constructor(
         throw exception!!
     }
 
+    //TODO: Обработка ситуации отзыва OAuth токена
     private suspend fun <T> safeExecuteRequest(func: suspend () -> T): DataResult<T> {
         try {
             val funcResult = retryOnUnsynchronized(func)

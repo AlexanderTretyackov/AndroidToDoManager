@@ -1,6 +1,7 @@
 plugins {
     id("android-app-convention")
     id("telegram-reporter")
+    kotlin("plugin.serialization") version "2.0.20" apply true
 }
 
 android {
@@ -11,6 +12,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = "21931c1f0f4843338a7b362f5fbe60b7"
     }
     buildTypes {
         defaultConfig {
@@ -31,4 +33,9 @@ tgReporter {
     chatId.set(providers.environmentVariable("TG_CHAT"))
     validateMaxSizeApkEnabled = false
     maxSizeApkInMb = 1
+}
+
+dependencies {
+    implementation(libs.yandex.auth.sdk)
+    implementation(libs.kotlinx.serialization.json)
 }
