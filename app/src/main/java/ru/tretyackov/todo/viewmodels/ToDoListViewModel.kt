@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import ru.tretyackov.todo.data.RefreshState
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.data.TodoItemsRepository
-import ru.tretyackov.todo.utilities.DateHelper
 import javax.inject.Inject
 
 enum class DataState {

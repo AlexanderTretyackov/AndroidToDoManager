@@ -17,11 +17,14 @@ import ru.tretyackov.todo.di.DaggerAppComponent
 import ru.tretyackov.todo.utilities.SyncToDoListWorker
 import java.util.concurrent.TimeUnit
 
+private const val PERIOD_SYNC_HOURS = 8L
+
 class App : Application() {
     companion object {
         lateinit var instance: App
             private set
     }
+
     val appComponent = DaggerAppComponent.factory().create(this)
     override fun onCreate() {
         super.onCreate()
@@ -53,8 +56,8 @@ class App : Application() {
 
     private fun enqueueSyncToDoList() {
         val syncToDoListWorkerRequest =
-            PeriodicWorkRequestBuilder<SyncToDoListWorker>(8, TimeUnit.HOURS)
-                .setInitialDelay(8, TimeUnit.HOURS)
+            PeriodicWorkRequestBuilder<SyncToDoListWorker>(PERIOD_SYNC_HOURS, TimeUnit.HOURS)
+                .setInitialDelay(PERIOD_SYNC_HOURS, TimeUnit.HOURS)
                 .build()
         WorkManager
             .getInstance(this)

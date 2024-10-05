@@ -4,6 +4,8 @@ import com.yandex.authsdk.YandexAuthToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+private const val COUNT_MILLIS_IN_SECOND = 1000
+
 @Serializable
 data class Token(
     @SerialName("value")
@@ -12,4 +14,5 @@ data class Token(
     val expiresAtUtc: Long
 )
 
-fun YandexAuthToken.toLocalToken() = Token(this.value, this.expiresIn * 1000 + System.currentTimeMillis())
+fun YandexAuthToken.toLocalToken() =
+    Token(this.value, this.expiresIn * COUNT_MILLIS_IN_SECOND + System.currentTimeMillis())

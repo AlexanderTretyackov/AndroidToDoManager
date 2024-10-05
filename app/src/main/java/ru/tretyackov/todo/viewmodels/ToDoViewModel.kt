@@ -15,17 +15,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.tretyackov.todo.data.network.DataResult
-import ru.tretyackov.todo.utilities.DateHelper
 import ru.tretyackov.todo.data.ToDoPriority
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.data.TodoItemsRepository
+import ru.tretyackov.todo.data.network.DataResult
+import ru.tretyackov.todo.utilities.DateHelper
 import java.util.Date
 import javax.inject.Inject
 
 private const val TODO_ID = "TODO_ID"
 
-interface IToDoViewModel{
+interface IToDoViewModel {
     val textState: StateFlow<String>
     val priorityState: StateFlow<ToDoPriority>
     val isDeadlineState: StateFlow<Boolean>
@@ -35,14 +35,14 @@ interface IToDoViewModel{
     val errorState: StateFlow<ToDoUpdateError>
     fun updateText(text: String)
     fun updatePriority(priority: ToDoPriority)
-    fun updateIsDeadline(isDeadline:Boolean)
+    fun updateIsDeadline(isDeadline: Boolean)
     fun updateDeadlineDate(date: Date)
     fun deleteToDo()
     fun saveToDo()
     fun goBack()
 }
 
-enum class ToDoUpdateError{
+enum class ToDoUpdateError {
     None,
     EmptyText,
     Network,
@@ -54,37 +54,41 @@ inline fun <reified T : ViewModel> Fragment.lazyViewModel(
     Factory(this, create)
 }
 
-class Factory<T: ViewModel>(
+class Factory<T : ViewModel>(
     savedStateRegistryOwner: SavedStateRegistryOwner,
     private val create: (stateHandle: SavedStateHandle) -> T
 ) : AbstractSavedStateViewModelFactory(savedStateRegistryOwner, null) {
-    override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
+    override fun <T : ViewModel> create(
+        key: String,
+        modelClass: Class<T>,
+        handle: SavedStateHandle
+    ): T {
         return create.invoke(handle) as T
     }
 }
 
-class ToDoViewModel @AssistedInject constructor(@Assisted private val state: SavedStateHandle) : ViewModel(), IToDoViewModel {
+class ToDoViewModel @AssistedInject constructor(@Assisted private val state: SavedStateHandle) :
+    ViewModel(), IToDoViewModel {
     @AssistedFactory
     interface Factory {
         fun create(savedStateHandle: SavedStateHandle): ToDoViewModel
     }
 
     @Inject
-    lateinit var todoItemsRepository : TodoItemsRepository
+    lateinit var todoItemsRepository: TodoItemsRepository
 
-    private var toDo : TodoItem? = null
-    init{
+    private var toDo: TodoItem? = null
+
+    init {
         val id = state.get<String>(TODO_ID)
-        if(id != null)
-        {
+        if (id != null) {
             viewModelScope.launch {
                 toDo = todoItemsRepository.find(id)
             }
         }
     }
 
-    fun updateTodoItem(t : TodoItem)
-    {
+    fun updateTodoItem(t: TodoItem) {
         //TODO: сохранение измененных данных
         state[TODO_ID] = t.id
         toDo = t
@@ -92,7 +96,7 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
         _textState.update { t.name }
         _priorityState.update { t.priority }
         _isDeadlineState.update { t.deadline != null }
-        if(t.deadline != null)
+        if (t.deadline != null)
             _deadlineDateState.update { t.deadline }
     }
 
@@ -120,27 +124,25 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
     private val _errorState = MutableStateFlow(ToDoUpdateError.None)
     override val errorState = _errorState.asStateFlow()
 
-    override fun updateText(text: String)
-    {
+    override fun updateText(text: String) {
         _textState.update { text }
     }
-    override fun updatePriority(priority: ToDoPriority)
-    {
+
+    override fun updatePriority(priority: ToDoPriority) {
         _priorityState.update { priority }
     }
-    override fun updateIsDeadline(isDeadline:Boolean)
-    {
+
+    override fun updateIsDeadline(isDeadline: Boolean) {
         _isDeadlineState.update { isDeadline }
     }
-    override fun updateDeadlineDate(date: Date)
-    {
+
+    override fun updateDeadlineDate(date: Date) {
         _deadlineDateState.update { date }
     }
-    override fun deleteToDo()
-    {
+
+    override fun deleteToDo() {
         val t = toDo
-        if(t != null)
-        {
+        if (t != null) {
             viewModelScope.launch {
                 _isLoadingState.update { true }
                 val removeResult = todoItemsRepository.remove(t)
@@ -157,19 +159,16 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
         }
     }
 
-    override fun saveToDo()
-    {
+    override fun saveToDo() {
         val oldToDo = toDo
         val text = textState.value.trim()
-        if(text.isEmpty())
-        {
+        if (text.isEmpty()) {
             _errorState.update { ToDoUpdateError.EmptyText }
             return
         }
-        val deadline = if(isDeadlineState.value) deadlineDateState.value else null
+        val deadline = if (isDeadlineState.value) deadlineDateState.value else null
         viewModelScope.launch {
-            if (oldToDo != null)
-            {
+            if (oldToDo != null) {
                 val newToDoItem = oldToDo.copy()
                 newToDoItem.name = text
                 newToDoItem.priority = priorityState.value
@@ -178,13 +177,10 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
                 _isLoadingState.update { true }
                 val result = todoItemsRepository.update(oldToDo, newToDoItem)
                 _isLoadingState.update { false }
-                if(result is DataResult.Error)
-                {
+                if (result is DataResult.Error) {
                     _errorState.update { ToDoUpdateError.Network }
                 }
-            }
-            else
-            {
+            } else {
                 _isLoadingState.update { true }
                 val result = todoItemsRepository.add(
                     TodoItem(
@@ -194,17 +190,15 @@ class ToDoViewModel @AssistedInject constructor(@Assisted private val state: Sav
                     )
                 )
                 _isLoadingState.update { false }
-                if(result is DataResult.Error)
-                {
+                if (result is DataResult.Error) {
                     _errorState.update { ToDoUpdateError.Network }
                 }
             }
             goBack()
         }
     }
-    
-    override fun goBack()
-    {
+
+    override fun goBack() {
         _goBackState.update { true }
     }
 }

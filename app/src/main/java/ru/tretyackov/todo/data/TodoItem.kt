@@ -7,24 +7,26 @@ import java.util.Calendar
 import java.util.Date
 import java.util.UUID
 
-enum class ToDoPriority{
-    Low,Medium,High
+enum class ToDoPriority {
+    Low, Medium, High
 }
 
-data class TodoItem(var name: String, var completed:Boolean, val id:String = UUID.randomUUID().toString(),
-                    val createdAt: Date = Calendar.getInstance().time, var lastUpdatedAt: Date = createdAt,
-                    var priority: ToDoPriority = ToDoPriority.Medium, var deadline:Date? = null)
+data class TodoItem(
+    var name: String, var completed: Boolean, val id: String = UUID.randomUUID().toString(),
+    val createdAt: Date = Calendar.getInstance().time, var lastUpdatedAt: Date = createdAt,
+    var priority: ToDoPriority = ToDoPriority.Medium, var deadline: Date? = null
+)
 
-fun ToDoPriority.toApiString() : String {
-    return when (this){
+fun ToDoPriority.toApiString(): String {
+    return when (this) {
         ToDoPriority.Low -> "low"
         ToDoPriority.Medium -> "basic"
         ToDoPriority.High -> "important"
     }
 }
 
-fun String.toDoPriorityFromApiString() : ToDoPriority {
-    return when (this){
+fun String.toDoPriorityFromApiString(): ToDoPriority {
+    return when (this) {
         "low" -> ToDoPriority.Low
         "basic" -> ToDoPriority.Medium
         "important" -> ToDoPriority.High
@@ -35,7 +37,7 @@ fun String.toDoPriorityFromApiString() : ToDoPriority {
 fun ToDoPriority.toDatabaseString() = toApiString()
 fun String.toDoPriorityFromDatabaseString() = toDoPriorityFromApiString()
 
-fun TodoItem.toDto() : ToDoItemDto {
+fun TodoItem.toDto(): ToDoItemDto {
     return ToDoItemDto(
         id = id,
         text = name,
@@ -44,10 +46,11 @@ fun TodoItem.toDto() : ToDoItemDto {
         done = completed, color = null,
         createdAt = createdAt.time,
         changedAt = lastUpdatedAt.time,
-        lastUpdatedBy = "1")
+        lastUpdatedBy = "1"
+    )
 }
 
-fun TodoItem.toDatabaseEntity() : TodoItemEntity {
+fun TodoItem.toDatabaseEntity(): TodoItemEntity {
     return TodoItemEntity(
         id = id,
         text = name,
@@ -56,10 +59,11 @@ fun TodoItem.toDatabaseEntity() : TodoItemEntity {
         deadline = deadline?.time,
         createdAt = createdAt.time,
         lastUpdatedAt = lastUpdatedAt.time,
-        operation = null)
+        operation = null
+    )
 }
 
-fun Date.toFormattedString() : String{
+fun Date.toFormattedString(): String {
     val pattern = "d MMMM yyyy"
     val simpleDateFormat = SimpleDateFormat(pattern)
     return simpleDateFormat.format(this)

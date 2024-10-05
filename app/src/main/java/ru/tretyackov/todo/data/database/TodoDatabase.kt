@@ -14,11 +14,11 @@ abstract class TodoDatabase : RoomDatabase() {
 }
 
 @Module
-object DatabaseModule{
+object DatabaseModule {
     @Singleton
     @Provides
     fun provideDatabase(ctx: Context): TodoDao = createTodoDao(ctx)
-    private fun createTodoDao(ctx: Context) : TodoDao {
+    private fun createTodoDao(ctx: Context): TodoDao {
         val db = Room.databaseBuilder(
             ctx,
             TodoDatabase::class.java, "todo-database"

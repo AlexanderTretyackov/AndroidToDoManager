@@ -3,29 +3,18 @@ package ru.tretyackov.todo.data.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
-import ru.tretyackov.todo.data.toDoPriorityFromDatabaseString
 import ru.tretyackov.todo.data.TodoItem
+import ru.tretyackov.todo.data.toDoPriorityFromDatabaseString
 import java.util.Date
 
-enum class TodoCachedOperationType{
+enum class TodoCachedOperationType {
     Created,
     Updated,
     Deleted,
 }
 
-private fun TodoCachedOperationType.toDatabaseString() : String {
-    return when(this)
-    {
-        TodoCachedOperationType.Created -> "Created"
-        TodoCachedOperationType.Updated -> "Updated"
-        TodoCachedOperationType.Deleted -> "Deleted"
-    }
-}
-
-private fun String.toTodoCachedOperationType() : TodoCachedOperationType? {
-    return when(this)
-    {
+private fun String.toTodoCachedOperationType(): TodoCachedOperationType? {
+    return when (this) {
         "Created" -> TodoCachedOperationType.Created
         "Updated" -> TodoCachedOperationType.Updated
         "Deleted" -> TodoCachedOperationType.Deleted
@@ -36,7 +25,7 @@ private fun String.toTodoCachedOperationType() : TodoCachedOperationType? {
 @Entity(tableName = "todoList")
 data class TodoItemEntity(
     @PrimaryKey
-    val id:String,
+    val id: String,
     @ColumnInfo(name = "text")
     val text: String,
     @ColumnInfo(name = "done")
@@ -51,12 +40,11 @@ data class TodoItemEntity(
     val lastUpdatedAt: Long,
     @ColumnInfo(name = "unsavedOperation")
     val operation: String?,
-)
-{
+) {
     val operationType get() = operation?.toTodoCachedOperationType()
 }
 
-fun TodoItemEntity.toModel() : TodoItem {
+fun TodoItemEntity.toModel(): TodoItem {
     return TodoItem(
         id = id,
         name = text,
@@ -64,6 +52,6 @@ fun TodoItemEntity.toModel() : TodoItem {
         createdAt = Date(createdAt),
         lastUpdatedAt = Date(lastUpdatedAt),
         priority = priority.toDoPriorityFromDatabaseString(),
-        deadline = if(deadline != null) Date(deadline) else null
+        deadline = if (deadline != null) Date(deadline) else null
     )
 }

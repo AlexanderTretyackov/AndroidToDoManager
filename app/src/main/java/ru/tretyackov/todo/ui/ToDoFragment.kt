@@ -23,58 +23,66 @@ import ru.tretyackov.todo.viewmodels.lazyViewModel
 import java.util.Calendar
 import java.util.Date
 
-interface IDatePickerDialog{
+interface IDatePickerDialog {
     fun show()
-    fun setDate(date:Date)
+    fun setDate(date: Date)
 }
 
 class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
     val vm: ToDoViewModel by lazyViewModel { stateHandle ->
         getAppComponent().toDoComponent().create().toDoViewModelFactory().create(stateHandle)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if(todoItemParam != null)
+        if (todoItemParam != null)
             vm.updateTodoItem(todoItemParam)
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.goBackState.collect { if(it) parentFragmentManager.popBackStack() }
+                vm.goBackState.collect { if (it) parentFragmentManager.popBackStack() }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.errorState.collect {
-                    val errorText = when(it){
+                    val errorText = when (it) {
                         ToDoUpdateError.None -> null
                         ToDoUpdateError.EmptyText -> context?.getString(R.string.error_empty_text_todo)
                         ToDoUpdateError.Network -> context?.getString(R.string.network_error)
                     }
-                    if(errorText != null)
-                        Toast.makeText(this@ToDoFragment.requireContext(),
-                            errorText, Toast.LENGTH_SHORT)
-                            .show() }
+                    if (errorText != null)
+                        Toast.makeText(
+                            this@ToDoFragment.requireContext(),
+                            errorText, Toast.LENGTH_SHORT
+                        )
+                            .show()
+                }
             }
         }
         val datePickerDialogImpl = object : IDatePickerDialog {
-            private val datePickerDialog = buildDatePickerDialog { _: DatePicker, y: Int, m: Int, d: Int ->
-                vm.updateDeadlineDate(DateHelper.dateFromYearMonthDay(y,m,d)) }
+            private val datePickerDialog =
+                buildDatePickerDialog { _: DatePicker, y: Int, m: Int, d: Int ->
+                    vm.updateDeadlineDate(DateHelper.dateFromYearMonthDay(y, m, d))
+                }
+
             override fun show() {
                 datePickerDialog.show()
             }
+
             override fun setDate(date: Date) {
                 datePickerDialog.updateDate(date)
             }
         }
         return ComposeView(requireContext()).apply {
             setContent {
-                ToDoComponent(vm,datePickerDialogImpl)
+                ToDoComponent(vm, datePickerDialogImpl)
             }
         }
     }
 
-    private fun DatePickerDialog.updateDate(date : Date){
+    private fun DatePickerDialog.updateDate(date: Date) {
         val calendar: Calendar = Calendar.getInstance()
         calendar.time = date
         val year: Int = calendar.get(Calendar.YEAR)
@@ -83,12 +91,12 @@ class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
         this.updateDate(year, month, day)
     }
 
-    private fun buildDatePickerDialog(dateListener: DatePickerDialog.OnDateSetListener):DatePickerDialog{
+    private fun buildDatePickerDialog(dateListener: DatePickerDialog.OnDateSetListener): DatePickerDialog {
         val calendar: Calendar = Calendar.getInstance()
         val year: Int = calendar.get(Calendar.YEAR)
         val month: Int = calendar.get(Calendar.MONTH)
         val day: Int = calendar.get(Calendar.DAY_OF_MONTH)
-        val datePickerDialog = DatePickerDialog(requireContext(),dateListener,year,month,day)
+        val datePickerDialog = DatePickerDialog(requireContext(), dateListener, year, month, day)
         datePickerDialog.datePicker.minDate = calendar.timeInMillis
         return datePickerDialog
     }

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
-interface ConnectivityMonitor{
+interface ConnectivityMonitor {
     val isAvailableFlow: Flow<Boolean>
 }
 
@@ -33,7 +33,9 @@ class ConnectivityMonitorImpl @Inject constructor(ctx: Context) : ConnectivityMo
             isAvailableFlow.update { false }
         }
     }
-    private val connectivityManager = getSystemService(ctx, ConnectivityManager::class.java) as ConnectivityManager
+    private val connectivityManager =
+        getSystemService(ctx, ConnectivityManager::class.java) as ConnectivityManager
+
     init {
         connectivityManager.requestNetwork(networkRequest, networkCallback)
     }

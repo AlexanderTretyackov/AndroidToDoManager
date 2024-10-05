@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-enum class Screen{
+enum class Screen {
     Undefined,
     TodoList
 }
@@ -29,7 +29,7 @@ class NavigationDivActionHandler : DivActionHandler() {
         val uri = action.url?.evaluate(view.expressionResolver) ?: return false
         if (uri.authority != "screen" || uri.scheme != "open") return false
         val screenId = uri.getQueryParameter("id") ?: return false
-        if(screenId == "todo_list")
+        if (screenId == "todo_list")
             _openScreenState.update { Screen.TodoList }
         return true
     }

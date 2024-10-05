@@ -17,7 +17,8 @@ class MainActivity : AppCompatActivity() {
         }
         val nowAtUtc = System.currentTimeMillis()
         val fragmentClass =
-            if (token == null || token.expiresAtUtc <= nowAtUtc) LoginFragment::class.java else ToDoListFragment::class.java
+            if (token == null || token.expiresAtUtc <= nowAtUtc) LoginFragment::class.java
+            else ToDoListFragment::class.java
         supportFragmentManager.commit {
             replace(R.id.fragment_container_view, fragmentClass, null)
         }
