@@ -20,13 +20,16 @@ import ru.tretyackov.todo.R
 import ru.tretyackov.todo.data.THEME_MODE_KEY
 import ru.tretyackov.todo.data.TodoItem
 import ru.tretyackov.todo.data.dataStore
-import ru.tretyackov.todo.utilities.FactoryViewModel
+import ru.tretyackov.todo.utilities.FactoryViewModelSimple
 import ru.tretyackov.todo.utilities.getAppComponent
 import ru.tretyackov.todo.viewmodels.DataState
 import ru.tretyackov.todo.viewmodels.ToDoListViewModel
 
 class ToDoListFragment : Fragment() {
-    private val vm: ToDoListViewModel by viewModels { FactoryViewModel(getAppComponent().toDoListViewModel()) }
+    private val fragmentComponent by lazy {
+        getAppComponent().toDoListFragmentComponentFactory().create()
+    }
+    private val vm: ToDoListViewModel by viewModels { FactoryViewModelSimple { fragmentComponent.toDoListViewModel() } }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

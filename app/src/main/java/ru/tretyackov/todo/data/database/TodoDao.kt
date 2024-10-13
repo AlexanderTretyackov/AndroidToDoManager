@@ -5,7 +5,9 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import ru.tretyackov.todo.di.AppScope
 
+@AppScope
 @Dao
 interface TodoDao {
     @Query("SELECT * FROM todoList WHERE unsavedOperation IS NOT 'Deleted'")

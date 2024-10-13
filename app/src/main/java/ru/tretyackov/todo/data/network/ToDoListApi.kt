@@ -26,9 +26,10 @@ import ru.tretyackov.todo.data.network.dto.OperatedToDoItemDto
 import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
 import ru.tretyackov.todo.data.network.dto.ToDoListDto
 import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
+import ru.tretyackov.todo.di.AppScope
 import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
 
+@AppScope
 interface ToDoListApi {
     @GET("list")
     suspend fun getToDoList(): ToDoListDto
@@ -88,7 +89,6 @@ class RetryInterceptor : Interceptor {
 
 @Module
 object ApiModule {
-    @Singleton
     @Provides
     fun provideApi(): ToDoListApi = createApi()
     private fun createApi(): ToDoListApi {

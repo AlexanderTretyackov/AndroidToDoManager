@@ -6,7 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Database(entities = [TodoItemEntity::class], version = 1)
 abstract class TodoDatabase : RoomDatabase() {
@@ -15,7 +14,7 @@ abstract class TodoDatabase : RoomDatabase() {
 
 @Module
 object DatabaseModule {
-    @Singleton
+
     @Provides
     fun provideDatabase(ctx: Context): TodoDao = createTodoDao(ctx)
     private fun createTodoDao(ctx: Context): TodoDao {

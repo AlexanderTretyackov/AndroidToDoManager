@@ -29,8 +29,11 @@ interface IDatePickerDialog {
 }
 
 class ToDoFragment(private val todoItemParam: TodoItem? = null) : Fragment() {
+    private val fragmentComponent by lazy {
+        getAppComponent().toDoFragmentComponentFactory().create()
+    }
     val vm: ToDoViewModel by lazyViewModel { stateHandle ->
-        getAppComponent().toDoComponent().create().toDoViewModelFactory().create(stateHandle)
+        fragmentComponent.toDoViewModelFactory().create(stateHandle)
     }
 
     override fun onCreateView(

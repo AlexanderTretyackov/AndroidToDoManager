@@ -21,12 +21,12 @@ import ru.tretyackov.todo.data.network.dto.PatchToDoListDto
 import ru.tretyackov.todo.data.network.dto.ToDoItemDto
 import ru.tretyackov.todo.data.network.dto.UpdateToDoItemDto
 import ru.tretyackov.todo.data.network.dto.toModel
+import ru.tretyackov.todo.di.AppScope
 import ru.tretyackov.todo.utilities.ConnectivityMonitor
 import ru.tretyackov.todo.utilities.DateHelper
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
-import javax.inject.Singleton
 
 enum class RefreshState {
     CachedLoading,
@@ -36,7 +36,7 @@ enum class RefreshState {
 
 private const val SERVER_UNSYNCHRONIZED_DATA_ERROR = "unsynchronized data"
 
-@Singleton
+@AppScope
 class TodoItemsRepository @Inject constructor(
     private val toDoApi: ToDoListApi,
     private val connectivityMonitor: ConnectivityMonitor,

@@ -9,14 +9,14 @@ import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import ru.tretyackov.todo.di.AppScope
 import javax.inject.Inject
-import javax.inject.Singleton
 
 interface ConnectivityMonitor {
     val isAvailableFlow: Flow<Boolean>
 }
 
-@Singleton
+@AppScope
 class ConnectivityMonitorImpl @Inject constructor(ctx: Context) : ConnectivityMonitor {
     override val isAvailableFlow = MutableStateFlow(false)
     private val networkRequest: NetworkRequest = NetworkRequest.Builder()
