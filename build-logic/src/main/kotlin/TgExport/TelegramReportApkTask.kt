@@ -12,7 +12,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import javax.inject.Inject
 
-abstract class TelegramReporterTask @Inject constructor(
+abstract class TelegramReportApkTask @Inject constructor(
     private val telegramApi: TelegramApi, private val variantName: String,
     private val versionCode: String
 ) : DefaultTask() {
@@ -35,10 +35,12 @@ abstract class TelegramReporterTask @Inject constructor(
         val token = token.get()
         val chatId = chatId.get()
         apkDir.get().asFile.listFiles()
-            ?.filter { it.name.endsWith(".apk") }
-            ?.forEach { file ->
+            ?.firstOrNull { it.name.endsWith(".apk") }
+            ?.let { file ->
                 val apkSizeInfo =
-                    if (apkSizeDescription.isPresent) " ${apkSizeDescription.get().asFile.get().readText()}" else ""
+                    if (apkSizeDescription.isPresent) " ${
+                        apkSizeDescription.get().asFile.get().readText()
+                    }" else ""
                 val customFileName = "todolist-$variantName-$versionCode.apk"
                 runBlocking {
                     telegramApi.sendMessage("Build finished.$apkSizeInfo", token, chatId).apply {

@@ -1,8 +1,8 @@
-import TgExport.TelegramReporterTask
+import TgExport.AnalyzeApkTask
+import TgExport.TelegramReportApkTask
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-import com.android.build.gradle.internal.tasks.factory.dependsOn
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import org.gradle.api.GradleException
@@ -21,8 +21,9 @@ abstract class TelegramReporterPlugin : Plugin<Project> {
         val telegramApi = TelegramApi(HttpClient(OkHttp))
         androidComponents.onVariants { variant ->
             val artifacts = variant.artifacts.get(SingleArtifact.APK)
+            val variantName = variant.name.capitalize()
             val validateTask = project.tasks.register(
-                "validateApkSizeFor${variant.name.capitalize()}",
+                "validateApkSizeFor${variantName}",
                 ValidatorApkSizeTask::class.java,
                 telegramApi
             )
@@ -36,21 +37,47 @@ abstract class TelegramReporterPlugin : Plugin<Project> {
             val versionCode =
                 project.extensions.findByType(BaseAppModuleExtension::class.java)?.defaultConfig?.versionCode
                     ?: throw GradleException("Android versionCode not found")
-            val reportTask = project.tasks.register(
-                "reportTelegramApkFor${variant.name.capitalize()}",
-                TelegramReporterTask::class.java,
+            val telegramReportApkTask = project.tasks.register(
+                "telegramReportApkFor${variantName}",
+                TelegramReportApkTask::class.java,
                 telegramApi, variant.name,
                 versionCode.toString(),
             )
-            if (extension.validateMaxSizeApkEnabled.get()) {
-                reportTask.dependsOn(validateTask)
-            }
-            reportTask.configure {
+            telegramReportApkTask.configure {
                 apkDir.set(artifacts)
                 token.set(extension.token)
                 chatId.set(extension.chatId)
-                if (extension.validateMaxSizeApkEnabled.get()) {
+            }
+            val analyzeApkTask = project.tasks.register(
+                "analyzeApkTaskFor${variantName}",
+                AnalyzeApkTask::class.java,
+                telegramApi
+            )
+            analyzeApkTask.configure {
+                token.set(extension.token)
+                chatId.set(extension.chatId)
+                apkDir.set(artifacts)
+            }
+            val analyzeApkEnabled = extension.analyzeApkEnabled.get()
+            val validateMaxSizeApkEnabled = extension.validateMaxSizeApkEnabled.get()
+            project.tasks.register("telegramReportDetailedFor${variantName}").configure {
+                dependsOn(telegramReportApkTask)
+                if (validateMaxSizeApkEnabled) {
+                    dependsOn(validateTask)
+                }
+                if (analyzeApkEnabled) {
+                    dependsOn(analyzeApkTask)
+                }
+            }
+            if (validateMaxSizeApkEnabled) {
+                telegramReportApkTask.configure {
                     apkSizeDescription.set(validateTask.get().outputFileApkSize)
+                    mustRunAfter(validateTask)
+                }
+            }
+            if (analyzeApkEnabled) {
+                analyzeApkTask.configure {
+                    mustRunAfter(telegramReportApkTask)
                 }
             }
         }
@@ -62,5 +89,6 @@ interface TelegramExtension {
     val token: Property<String>
     val validateMaxSizeApkEnabled: Property<Boolean>
     val maxSizeApkInMb: Property<Int>
+    val analyzeApkEnabled: Property<Boolean>
 }
 

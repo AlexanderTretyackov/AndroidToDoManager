@@ -32,6 +32,7 @@ tgReporter {
     token.set(providers.environmentVariable("TG_TOKEN"))
     chatId.set(providers.environmentVariable("TG_CHAT"))
     validateMaxSizeApkEnabled = false
+    analyzeApkEnabled = false
     maxSizeApkInMb = 1
 }
 
